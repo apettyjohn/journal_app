@@ -1,0 +1,16 @@
+{
+  "name": "journal-app",
+  "version": "1.0.0",
+  "description": "A place to keep track of thoughts",
+  "main": "main.js",
+  "scripts": {
+    "start" : "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Adam Pettyjohn",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^19.0.9"
+  }
+}
