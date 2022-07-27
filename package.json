@@ -2,6 +2,8 @@
   "name": "journal-app",
   "version": "0.1.0",
   "main": "public/electron.js",
+  "homepage": "./",
+  "author": {"name": "Adam Pettyjohn","email": "apettyjohn7@gmail.com"},
   "description": "A place to store my thoughts",
   "private": true,
   "dependencies": {
@@ -14,6 +16,7 @@
     "@types/react-dom": "^18.0.6",
     "cross-env": "^7.0.3",
     "electron-is-dev": "1.2.0",
+    "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -21,8 +24,15 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.65",
+    "@electron-forge/maker-deb": "^6.0.0-beta.65",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.65",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.65",
+    "@electron-forge/maker-zip": "^6.0.0-beta.65",
     "concurrently": "^5.2.0",
     "electron": "^9.1.1",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-icon-maker": "^0.0.5",
     "wait-on": "^5.1.0"
   },
   "scripts": {
@@ -31,7 +41,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run electron\"",
-    "electron": "wait-on tcp:3000 && electron ."
+    "electron": "wait-on tcp:3000 && electron-forge start",
+    "package": "react-scripts build && electron-forge package",
+    "make": "react-scripts build && electron-forge make"
   },
   "eslintConfig": {
     "extends": [
@@ -50,5 +62,31 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "src/icons/mac/icon.icns",
+        "name": "Electron App",
+        "asar": true
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel"
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb"
+        },
+        {
+          "name": "@electron-forge/maker-rpm"
+        }
+      ]
+    }
   }
 }
