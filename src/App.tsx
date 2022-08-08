@@ -1,26 +1,30 @@
 import React from 'react';
-import logo from './icons/png/16x16.png';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import './App.css';
+import Account from "./views/Account";
+import Edit from "./views/Edit";
+import Login from "./views/Login";
+import Main from "./views/Main";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+      <div id="app" className="light-mode">
+          <button onClick={() => {
+              const appClasses = document.getElementById("app")!.classList;
+              console.log(appClasses);
+              appClasses.contains("light-mode")? appClasses.replace("light-mode","dark-mode"): appClasses.replace("dark-mode","light-mode");
+          }}>Change Mode</button>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="login" element={<Login />} />
+                <Route path="account" element={<Account />} />
+                <Route path="home" element={<Main />} />
+                <Route path="edit" element={<Edit />} />
+            </Routes>
+        </BrowserRouter>
+      </div>);
 }
 
 export default App;

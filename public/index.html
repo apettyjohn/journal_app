@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Application for recording thoughts or cataloguing life"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
@@ -24,20 +24,55 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <!-- Material UI Imports -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <title>Journal App</title>
+    <style>
+      html, body {
+        margin:0;
+        padding:0;
+        height:100%;
+      }
+      .splash-screen {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .splash-screen .loading-dot {
+        font-size: 100px;
+        margin-top: -80px;
+        position: relative;
+        animation: ease-in-out infinite alternate;
+        animation-name: run;
+        animation-duration: 1.2s;
+      }
+
+      @keyframes run {
+        0% {
+          left: -90px;
+          color: #eee;
+        }
+        50% {
+          color: #666;
+        }
+        100% {
+          left: 90px;
+          color: #eee;
+        }
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div class="splash-screen">
+      Wait a moment while we load your app.
+      <div class="loading-dot">.</div>
+    </div>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>
