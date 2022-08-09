@@ -16,7 +16,8 @@ function ProfilePic(props: {size?: string, user: User}) {
         display: 'flex',
         justifyContent: "center",
         alignItems: "center",
-        fontSize: '25px'
+        fontSize: '25px',
+        boxShadow: '0px 2px 3px 0px rgb(0 0 0 / 50%)'
     }
     if (props.size === "large") {
         divStyle.height = '100px';

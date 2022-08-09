@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {Provider} from "react-redux";
+import store from "./reduxStore";
+import {CssBaseline} from "@material-ui/core";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -11,7 +14,10 @@ setTimeout(() => {
     document.getElementsByClassName("splash-screen").item(0)!.remove();
     root.render(
         <React.StrictMode>
-            <App />
+            <Provider store={store}>
+                <CssBaseline />
+                <App />
+            </Provider>
         </React.StrictMode>
     );
 },1000);

@@ -1,22 +1,15 @@
-import {configureStore, createSlice} from "@reduxjs/toolkit";
+import {configureStore} from "@reduxjs/toolkit";
+import {combineReducers} from "redux";
+import themeReducer from "./reducers/themeSlice";
+import userReducer from "./reducers/userSlice";
 
-const counterSlice = createSlice({
-    name: 'counter',
-    initialState: {
-        value: 0
-    },
-    reducers: {
-        incremented: state => {
-            state.value += 1
-        },
-        decremented: state => {
-            state.value -= 1
-        }
-    }
+const rootReducer = combineReducers({
+    theme: themeReducer,
+    user: userReducer,
 });
-export const { incremented, decremented } = counterSlice.actions;
 
 const store = configureStore({
-    reducer: counterSlice.reducer
+    reducer: rootReducer
 });
 export default store;
+export type Store = ReturnType<typeof rootReducer>;

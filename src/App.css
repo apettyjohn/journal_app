@@ -2,8 +2,33 @@
     --white: #ffffff;
     --dark-grey: #2D2D2D;
     --black: #000000;
+    --blackWalpha: #00000033;
+    --whiteWalpha: #ffffff33;
+    --shadow: var(--blackWalpha);
     --text: var(--white);
     --div: var(--dark-grey);
+    --transition: 0.3s;
+}
+
+* {
+    transition: all var(--transition);
+}
+
+div {
+    background-color: var(--div);
+    border-color: var(--text) !important;
+}
+
+text, h1, h2, h3, h4, h5, h6, p, div {
+    color: var(--text);
+}
+
+.MuiCard-root {
+    margin: 2rem !important;
+    border: 1px solid var(--text) !important;
+    box-shadow: 0px 2px 1px 0px !important;
+    color: var(--shadow) !important;
+    border-radius: 1em !important;
 }
 
 #app  {
@@ -17,20 +42,14 @@
     overflow: auto;
 }
 
-text, h1, h2, h3, h4, h5, h6, p {
-    color: var(--text);
-}
-
-div {
-    background-color: var(--div);
-}
-
 .light-mode {
     --div: var(--white);
     --text: var(--black);
+    --shadow: var(--blackWalpha);
 }
 
 .dark-mode {
     --div: var(--dark-grey);
     --text: var(--white);
+    --shadow: var(--whiteWalpha);
 }
