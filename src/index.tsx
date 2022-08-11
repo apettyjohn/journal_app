@@ -12,6 +12,7 @@ const root = ReactDOM.createRoot(
 );
 setTimeout(() => {
     document.getElementsByClassName("splash-screen").item(0)!.remove();
+
     root.render(
         <React.StrictMode>
             <Provider store={store}>

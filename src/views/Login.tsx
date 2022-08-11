@@ -1,5 +1,4 @@
-import {Button, Card, CardActionArea, CardContent, createTheme, ThemeProvider, Typography} from "@material-ui/core";
-import {lightGreen, red} from "@material-ui/core/colors";
+import {Button, Card, CardActionArea, CardContent, Typography} from "@material-ui/core";
 import {CSSProperties} from "react";
 import ProfilePic from "./components/ProfilePic";
 import {User} from "../objects/user";
@@ -7,15 +6,8 @@ import {useSelector} from "react-redux";
 import {Store} from "../reduxStore";
 
 function Login () {
-    const btnTheme = createTheme({
-        palette: {
-            primary: lightGreen,
-            secondary: red
-        }
-    });
     const headCardStyle: CSSProperties = {display: 'flex', flexDirection: "row-reverse"};
     const bodyCardStyle: CSSProperties = {maxWidth: '20%', textAlign: "center"}
-    const btnStyles: CSSProperties = {textDecoration: 'underline', textUnderlineOffset: '1em'};
     const divStyles: CSSProperties = {
         width: '100%',
         height: '65%',
@@ -31,11 +23,9 @@ function Login () {
     return(<div className="view">
         <Card>
             <CardContent style={headCardStyle}>
-                <ThemeProvider theme={btnTheme}>
-                    <Button size="large" color="secondary" style={btnStyles}>Delete User</Button>
+                    <Button size="large" className="delete">Delete User</Button>
                     <span style={{width: '1rem'}} />
-                    <Button size="large" color="primary" style={btnStyles}>Create User</Button>
-                </ThemeProvider>
+                    <Button size="large" className="create">Create User</Button>
             </CardContent>
         </Card>
         <div style={divStyles}>{users.map((user,i) =>

@@ -23,7 +23,9 @@ function createWindow() {
     height: 600,
     autoHideMenuBar: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      worldSafeExecuteJavaScript: true
     }
   });
 

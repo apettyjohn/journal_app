@@ -1,7 +1,12 @@
 :root {
+    /* Palette Colors */
     --white: #ffffff;
     --dark-grey: #2D2D2D;
     --black: #000000;
+    --create: #17ce17;
+    --delete: #d50000;
+
+    /* Component Variables */
     --blackWalpha: #00000033;
     --whiteWalpha: #ffffff33;
     --shadow: var(--blackWalpha);
@@ -10,26 +15,29 @@
     --transition: 0.3s;
 }
 
-* {
-    transition: all var(--transition);
-}
+* { transition: all var(--transition) }
+*.create { color: var(--create) !important; }
+*.delete { color: var(--delete) !important; }
 
 div {
     background-color: var(--div);
     border-color: var(--text) !important;
+
 }
 
-text, h1, h2, h3, h4, h5, h6, p, div {
-    color: var(--text);
-}
+text, h1, h2, h3, h4, h5, h6, p, div { color: var(--text); }
 
 .MuiCard-root {
     margin: 2rem !important;
     border: 1px solid var(--text) !important;
-    box-shadow: 0px 2px 1px 0px !important;
+    box-shadow: 0 2px 1px 0 !important;
     color: var(--shadow) !important;
     border-radius: 1em !important;
 }
+
+.MuiBox-root *{ margin: 1em !important; }
+
+div[role="presentation"] { background-color: rgb(0 0 0 / 50%) !important; }
 
 #app  {
     height: 100%;

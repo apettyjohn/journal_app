@@ -9,20 +9,23 @@ import Main from "./views/Main";
 import {Store} from "./reduxStore";
 import {useDispatch, useSelector} from "react-redux";
 import {toggle} from "./reducers/themeSlice";
+import FileModal from "./views/components/FileModal";
 
 function App() {
     const dispatch = useDispatch();
     const theme = useSelector((state: Store) => state.theme.value);
 
     function swapThemeClass () {
-        const appClasses = document.getElementById("app")!.classList;
+        const appClasses = document.getElementsByTagName("body").item(0)!.classList;
         (theme === 'light')?
             appClasses.replace("light-mode", "dark-mode") :
             appClasses.replace("dark-mode", "light-mode");
     }
 
     return (
-      <div id="app" className="light-mode">
+      <div id="app">
+          <FileModal />
+          <div id="file-output"></div>
           <button onClick={() => {
               swapThemeClass();
               (theme === 'light')? dispatch(toggle('dark')): dispatch(toggle('light'));

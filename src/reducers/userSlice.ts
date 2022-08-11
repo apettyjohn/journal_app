@@ -32,7 +32,7 @@ export const userSlice = createSlice({
             state.users = temp;
         });
         builder.addCase(remove, (state, { payload }) => {
-            if (payload > -1) {
+            if (payload > -1 && payload < state.users.length) {
                 state.users.splice(payload,1);
             }
         });
@@ -44,8 +44,3 @@ export const userSlice = createSlice({
 export type userSliceType = ReturnType<typeof userSlice.getInitialState>;
 export const { reset } = userSlice.actions;
 export default userSlice.reducer;
-
-// Functions
-export function loadUsers() {
-
-}

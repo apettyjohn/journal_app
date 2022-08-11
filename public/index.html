@@ -9,6 +9,7 @@
       name="description"
       content="Application for recording thoughts or cataloguing life"
     />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -71,8 +72,9 @@
       }
     </style>
   </head>
-  <body>
+  <body class="light-mode">
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script src="electronFileFunctions.js"></script>
     <div class="splash-screen">
       Wait a moment while we load your app.
       <div class="loading-dot">.</div>
