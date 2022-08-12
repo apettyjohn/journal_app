@@ -17,7 +17,6 @@ if (require("electron-squirrel-startup")) {
 }
 
 function createWindow() {
-  // Create the browser window.
   const win = new BrowserWindow({
     width: 800,
     height: 600,
@@ -28,8 +27,6 @@ function createWindow() {
       worldSafeExecuteJavaScript: true
     }
   });
-
-
   // and load the index.html of the app.
   // win.loadFile("index.html");
   win.loadURL(

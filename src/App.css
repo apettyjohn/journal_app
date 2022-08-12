@@ -5,6 +5,7 @@
     --black: #000000;
     --create: #17ce17;
     --delete: #d50000;
+    --systemText: #9f9f9f;
 
     /* Component Variables */
     --blackWalpha: #00000033;
@@ -18,6 +19,7 @@
 * { transition: all var(--transition) }
 *.create { color: var(--create) !important; }
 *.delete { color: var(--delete) !important; }
+*.systemText { color: var(--systemText) !important; }
 
 div {
     background-color: var(--div);
@@ -28,11 +30,20 @@ div {
 text, h1, h2, h3, h4, h5, h6, p, div { color: var(--text); }
 
 .MuiCard-root {
-    margin: 2rem !important;
+    margin: 1rem !important;
     border: 1px solid var(--text) !important;
     box-shadow: 0 2px 1px 0 !important;
     color: var(--shadow) !important;
     border-radius: 1em !important;
+    background-color: var(--div) !important;
+}
+
+.MuiIconButton-root {
+    color: var(--text) !important;
+}
+
+.MuiCardContent-root {
+    padding: 1rem !important;
 }
 
 .MuiBox-root *{ margin: 1em !important; }

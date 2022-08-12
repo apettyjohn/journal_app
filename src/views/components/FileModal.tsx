@@ -20,7 +20,7 @@ export default function FileModal() {
 
     return (
         <div>
-            <Button onClick={handleOpen} variant="contained">Open modal</Button>
+            <Button onClick={handleOpen} variant="contained">File modal</Button>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -29,12 +29,15 @@ export default function FileModal() {
             >
                 <Box style={style}>
                     <Typography variant="h5">Text in a modal</Typography>
-                    <Typography>
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                    </Typography>
+                    <Typography>Duis mollis, est non commodo luctus, nisi erat porttitor ligula</Typography>
                     <div style={{display:'flex',flexDirection:"row-reverse"}}>
                         <Button onClick={handleClose} variant="contained" color="default">Close modal</Button>
-                        <Button className="file-open" data-options={'{}'} variant="contained">Open Folder</Button>
+                        <Button onClick={handleClose} className="file-open"
+                                data-options={'{"dialog":"false","fullPaths":"[`C:/Users\\apett\\Downloads\\test.json`]"}'}
+                                variant="contained">Open File</Button>
+                        <Button onClick={handleClose} className="file-save"
+                                data-options={'{"elementId":"file-input","dialog":"false","fullPath":"C:\\Users\\apett\\Downloads\\test.json"}'}
+                                variant="contained">Save text</Button>
                     </div>
                 </Box>
             </Modal>

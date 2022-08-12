@@ -1,12 +1,12 @@
 import React, {CSSProperties} from 'react';
 import {User} from "../../objects/user";
 
-function ProfilePic(props: {size?: string, user: User}) {
-    function parseName(name: string){
-        const list = name.split(' ');
-        return (list.length > 1)? list.at(0)!.at(0)!.toUpperCase() + list.at(-1)!.at(0)!.toUpperCase() : list.at(0)!.at(0)!.toUpperCase();
-    }
+function parseName(name: string){
+    const list: Array<string> = name.toUpperCase().split(' ');
+    return list[0][0];
+}
 
+function ProfilePic(props: {size?: string, user: User}) {
     const imgStyle: CSSProperties = {height:"inherit",width:"inherit", borderRadius:"inherit"};
     let divStyle: CSSProperties = {
         height: '60px',
@@ -17,6 +17,7 @@ function ProfilePic(props: {size?: string, user: User}) {
         justifyContent: "center",
         alignItems: "center",
         fontSize: '25px',
+        color: "black",
         boxShadow: '0px 2px 3px 0px rgb(0 0 0 / 50%)'
     }
     if (props.size === "large") {
