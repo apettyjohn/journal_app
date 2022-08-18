@@ -24,10 +24,14 @@
 div {
     background-color: var(--div);
     border-color: var(--text) !important;
-
 }
 
 text, h1, h2, h3, h4, h5, h6, p, div { color: var(--text); }
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
 .MuiCard-root {
     margin: 1rem !important;
@@ -38,19 +42,15 @@ text, h1, h2, h3, h4, h5, h6, p, div { color: var(--text); }
     background-color: var(--div) !important;
 }
 
-.MuiIconButton-root {
-    color: var(--text) !important;
-}
+.MuiIconButton-root { color: var(--text) !important; }
 
-.MuiSvgIcon-root {
-    color: var(--text) !important;
-}
+.MuiSvgIcon-root { color: var(--text) !important; }
 
-.MuiCardContent-root {
-    padding: 1rem !important;
-}
+.MuiCardContent-root { padding: 1rem !important; }
 
 .MuiBox-root *{ margin: 1em !important; }
+
+.DraftEditor-editorContainer { border: none !important; }
 
 div[role="presentation"] { background-color: rgb(0 0 0 / 50%) !important; }
 
@@ -61,7 +61,7 @@ div[role="presentation"] { background-color: rgb(0 0 0 / 50%) !important; }
 
 .view {
     width: 100%;
-    height: 100%;
+    height: 87%;
     overflow: auto;
 }
 

@@ -17,8 +17,8 @@ export default function FileModal() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const openOptions = {dialog: false, fullPath: ["test.json"]};
-    const saveOptions = {elementId: "file-input", dialog: false, fullPath: ["test.json"]};
+    const openOptions = {};
+    const saveOptions = {elementId: "file-input"};
 
     return (
         <div>

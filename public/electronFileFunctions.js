@@ -3,7 +3,11 @@ const path = require('path');
 const jetpack = require("fs-jetpack");
 const dialog = electron.remote.dialog;
 
+const cacheName = "journal-app-files";
 const workingDir = ["C:", "Users", "apett", "Downloads"];
+const loadedFiles = [];
+console.log(`cache supported: ${'caches' in window}`);
+
 const target = document.querySelector('body');
 const config = {childList: true};
 const saveObserver = new MutationObserver(function () {
@@ -25,15 +29,21 @@ const openObserver = new MutationObserver(function () {
 const postObserver = new MutationObserver(function () {
     const posts = document.getElementsByClassName("post");
     if (posts.length > 0) {
-        console.log(`found ${posts.length} posts`);
+        // console.log(`found ${posts.length} posts`);
         for (let i = 0; i < posts.length; i++) {
-            if (posts[i].dataset.state === "" && posts[i].dataset.filename !== "") loadPost(posts[i]).then(() => posts[i].click());
+            if (posts[i].dataset.loaded === "" && posts[i].dataset.filename !== "") {
+                loadPost(posts[i]).then();
+            }
         }
     }
 });
 saveObserver.observe(target, config);
 openObserver.observe(target, config);
-postObserver.observe(target, config);
+postObserver.observe(target, {childList: true, subtree: true});
+
+function init() {
+    return;
+}
 
 async function saveFileDialog() {
     const defaults = {
@@ -68,7 +78,7 @@ async function saveFileDialog() {
     }
     if (options.dialog === true) {
         const file = await dialog.showSaveDialog({
-            title: 'Select the File Path to save',
+            title: 'Select the File to save',
             defaultPath: path.join(__dirname, `${options.suggestedPath}/${options.name}.${options.ext}`),
             buttonLabel: 'Save',
             filters: [  // Restricting the user to only Text Files.
@@ -79,28 +89,29 @@ async function saveFileDialog() {
             properties: []
         });
         try {
-            if (!file.canceled) writeFile(file.filePath, options.data);
+            if (!file.canceled) await writeFile([file.filePath], options.data);
         } catch (err) {
             console.log(err)
         }
     } else {
         if (options.fullPath !== undefined) {
-            writeFile(options.fullPath, options.data);
+            await writeFile(options.fullPath, options.data);
         } else {
             console.log("No path specified for silent save");
         }
     }
 }
 
-async function writeFile(filepath, data) {
-    if (filepath.length > 1) {
+async function writeFile(filePath, data) {
+    if (filePath.length > 1) {
         const root = jetpack.cwd(workingDir.join('\\'));
-        for (let i = 0; i < filepath.length - 1; i++) {
-            root.dir(filepath[i]);
+        for (let i = 0; i < filePath.length - 1; i++) {
+            root.dir(filePath[i]);
         }
     }
-    await jetpack.writeAsync(workingDir.concat(filepath).join('\\'), data);
-    console.log(`Saved ${filepath.join('\\')}`)
+    const path = (filePath[0].includes('\\'))? filePath[0]: workingDir.concat(filePath).join('\\')
+    await jetpack.writeAsync(path, data);
+    console.log(`Saved ${path}`)
 }
 
 async function openFileDialog() {
@@ -109,29 +120,32 @@ async function openFileDialog() {
     if (this.dataset.options !== undefined) {
         options = {...defaults, ...JSON.parse(this.dataset.options)};
     }
-    if (this.dataset.path !== undefined) {
-        options.fullPath = this.dataset.path;
-    }
     let props = ["openFile", "openDirectory"];
-    (!options.directory) ? props.pop() : props.splice(0);
+    props = (options.directory)? props.pop() : props.slice(0,1);
 
     if (options.dialog === true) {
         const file = await dialog.showOpenDialog({
             title: 'Select the File to open',
             defaultPath: path.join(__dirname, `${options.suggestedPath}/`),
             buttonLabel: 'Open',
-            properties: props
+            properties: [props]
         });
         try {
             if (!file.canceled) {
-                readFile(file.filePaths);
+                if (options.directory){
+                    console.log(jetpack.cwd());
+                    const files = jetpack.find(file.filePaths[0]);
+                    console.log(files);
+                } else {
+                    await readFile(file.filePaths, true);
+                }
             }
         } catch (err) {
             console.log(err);
         }
     } else {
         if (options.fullPath !== undefined) {
-            readFile(options.fullPath)
+            await readFile(options.fullPath, true)
         } else {
             console.log("No file path specified");
         }
@@ -140,14 +154,9 @@ async function openFileDialog() {
 
 async function readFile(filePath, display) {
     const fileExtension = filePath[filePath.length - 1].split(".").pop();
-    if (filePath.length > 1) {
-        const root = jetpack.cwd(workingDir.join('\\'));
-        for (let i = 0; i < filePath.length - 1; i++) {
-            root.dir(filePath[i]);
-        }
-    }
     // Load file
-    const data = await jetpack.readAsync(workingDir.concat(filePath).join('\\'), fileExtension);
+    const path = (display)? filePath[0]: workingDir.concat(filePath).join('\\')
+    const data = await jetpack.readAsync(path, fileExtension);
     console.log(`Opened file ${filePath}`);
 
     if (display) {
@@ -168,19 +177,24 @@ async function readFile(filePath, display) {
 }
 
 async function loadPost(element) {
-    console.log("running load post");
     const fileName = element.dataset.filename;
-    const cookies = document.cookie.split(';');
-    let done = false;
-    cookies.forEach((cookie) => {
-        const temp = cookie.trim().split('=');
-        if (temp[0] === fileName) {
-            console.log(`found cookie for ${fileName}`)
-            done = true;
+    await checkCachedFile(fileName);
+    element.dataset.loaded = "true";
+    element.click();
+}
+
+async function checkCachedFile(fileName, filePath = null){
+    if (filePath === null) filePath = [fileName];
+    caches.open(cacheName).then(async (cache) => {
+        const url = `http://localhost:3000/files/${fileName}`;
+        const response = await cache.match(url);
+        if (response === undefined || !loadedFiles.includes(fileName)) {
+            const data = await readFile(filePath, false);
+            let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
+            output.url = url;
+            await cache.put(url, output);
+            loadedFiles.push(fileName);
+            console.log(`loaded file and cached response for ${fileName}`);
         }
     });
-    if (done) return;
-    const data = await readFile([fileName], false);
-    document.cookie = `${fileName}=${data}`;
-    console.log(`loaded file and set cookie for ${fileName}`);
 }

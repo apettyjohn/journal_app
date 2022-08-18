@@ -1,5 +1,11 @@
 import {Card, CardContent, CardMedia} from "@material-ui/core";
 import {CSSProperties, useState} from "react";
+import {Link} from "react-router-dom";
+
+interface state {
+    editorState: {},
+    html: Array<string>
+}
 
 export default function Post(props: { fileName: string, index: number }) {
     // Styles
@@ -17,22 +23,24 @@ export default function Post(props: { fileName: string, index: number }) {
         return {...defaults, ...props};
     }
     // State
-    const initialState = {editorState: {}, html: []};
-    let state = {...initialState};
-    const [seed, setSeed] = useState(1);
-    const reset = () => {
-        setSeed(Math.random());
-    }
+    const initialState: state = {editorState: {}, html: []};
+    const [currentState, setCurrentState] = useState(initialState);
+    const cacheName = "journal-app-files";
+
     // Functions
-    function refreshState() {
-        console.log(`state: ${state}`);
-        const cookies = document.cookie.split(';');
-        cookies.forEach((cookie) => {
-            const temp = cookie.trim().split('=');
-            if (temp[0] === props.fileName) state = JSON.parse(temp[1]);
-        });
-        reset();
+    async function checkCache() {
+        const url = `http://localhost:3000/files/${props.fileName}`;
+        const cache = await caches.open(cacheName)
+        const response = await cache.match(url);
+        if (response === undefined) return;
+        const data = await response.text();
+        const newState = JSON.parse(data) as state;
+        if (newState.editorState !== currentState.editorState && newState.html !== currentState.html) {
+            setCurrentState(newState);
+        }
+        // console.log(`state: ${currentState.html.length}`, `initialstate: ${initialState.html.length}`);
     }
+
     function imageCounter(html: Array<string>) {
         const htmlString = html.join("'");
         const count = (htmlString.match(/<img/g) || []).length;
@@ -70,21 +78,21 @@ export default function Post(props: { fileName: string, index: number }) {
     }
 
     return (
-        <div className="post" data-filename={props.fileName}
-             style={{width: "50%", maxWidth: '800px', maxHeight: '200px'}} onClick={refreshState} key={props.index}>
-            <Card style={cardStyle} key={seed}>
+        <div className="post" data-filename={props.fileName} data-loaded=""
+             style={{width: "50%", maxWidth: '800px', maxHeight: '200px'}} onClick={checkCache} key={props.index}>
+            <Card style={cardStyle}>
                 <CardContent style={contentStyle}>
-                    {(initialState.editorState === state.editorState && initialState.html === state.html) ?
+                    {(currentState.html.length < 1) ?
                         <div style={contentDivStyle}>
                             <div style={skeletonStyle({height: "2em", marginRight: "40%"})}></div>
                             <div style={skeletonStyle()}></div>
                             <div style={skeletonStyle({marginRight: "20%"})}></div>
                         </div> :
-                        <div>
-                            {state.html}
-                        </div>}
+                        <Link to="/edit" state={{editorState: currentState.editorState}} style={contentStyle}>
+                            <div dangerouslySetInnerHTML={{__html: currentState.html.join("'")}}></div>
+                        </Link>}
                 </CardContent>
-                {imageCounter(state.html)}
+                {imageCounter(currentState.html)}
             </Card>
         </div>);
 }
