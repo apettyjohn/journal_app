@@ -1,6 +1,7 @@
-const path = require("path");
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const isDev = require("electron-is-dev");
+const path = require("path");
+const os = require("os");
 
 // Conditionally include the dev tools installer to load React Dev Tools
 let installExtension, REACT_DEVELOPER_TOOLS;
@@ -27,8 +28,7 @@ function createWindow() {
       worldSafeExecuteJavaScript: true
     }
   });
-  // and load the index.html of the app.
-  // win.loadFile("index.html");
+
   win.loadURL(
     isDev
       ? "http://localhost:3000"
@@ -39,11 +39,10 @@ function createWindow() {
   if (isDev) {
     win.webContents.openDevTools({ mode: "detach" });
   }
+  win.setRepresentedFilename(os.homedir());
+  win.setDocumentEdited(true);
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
   if (isDev) {
@@ -52,9 +51,30 @@ app.whenReady().then(() => {
       .catch(error => console.log(`An error occurred: , ${error}`));
   }
 });
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+
+ipcMain.on('will-download', (event, item) => {
+  // Interrupt
+  item.on('updated', (event, state) => {
+    if (state === 'interrupted') {
+      console.log('Download is interrupted but can be resumed')
+    } else if (state === 'progressing') {
+      if (item.isPaused()) {
+        console.log('Download is paused')
+      } else {
+        console.log(`Received bytes: ${item.getReceivedBytes()}`)
+      }
+    }
+  });
+  // Done
+  item.once('done', (event, state) => {
+    if (state === 'completed') {
+      console.log('Download successfully')
+    } else {
+      console.log(`Download failed: ${state}`)
+    }
+  });
+});
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
@@ -62,8 +82,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }

@@ -41,6 +41,9 @@ function App() {
                     </div>
                     <div style={{display: 'flex', flexDirection: 'row'}}>
                         <input id="file-input"/>
+                        <Button variant="contained" onClick={() => {
+                            document.getElementById("file-output")!.innerText = "";
+                        }}>Clear output</Button>
                         <div id="file-output"></div>
                     </div>
                 </div>

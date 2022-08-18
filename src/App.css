@@ -42,6 +42,10 @@ text, h1, h2, h3, h4, h5, h6, p, div { color: var(--text); }
     color: var(--text) !important;
 }
 
+.MuiSvgIcon-root {
+    color: var(--text) !important;
+}
+
 .MuiCardContent-root {
     padding: 1rem !important;
 }

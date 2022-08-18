@@ -18,16 +18,18 @@ function Login () {
         justifyContent: "center",
         paddingTop: '10%',
     };
-    const users: Array<User> = useSelector((state: Store) => state.user.users);
+    const users: Array<User> = [{id: 1, name: "Adam Pettyjohn"} as User];;
 
     return(<div className="view">
-        <Card>
-            <CardContent style={headCardStyle}>
-                    <Button size="large" className="delete">Delete User</Button>
-                    <span style={{width: '1rem'}} />
-                    <Button size="large" className="create">Create User</Button>
-            </CardContent>
-        </Card>
+        <div style={{display: "flex", justifyContent: "center", flexGrow: '1'}}>
+            <Card style={{maxWidth: '800px', flexGrow: '1'}}>
+                <CardContent style={headCardStyle}>
+                        <Button size="large" className="delete">Delete User</Button>
+                        <span style={{width: '1rem'}} />
+                        <Button size="large" className="create">Create User</Button>
+                </CardContent>
+            </Card>
+        </div>
         <div style={divStyles}>{users.map((user,i) =>
             <Card style={bodyCardStyle} key={i}>
                 <CardActionArea>

@@ -1,6 +1,6 @@
 import * as React from 'react';
+import {CSSProperties} from 'react';
 import {Box, Button, Modal, Typography} from "@material-ui/core";
-import {CSSProperties} from "react";
 
 const style: CSSProperties = {
     position: 'absolute',
@@ -17,6 +17,8 @@ export default function FileModal() {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+    const openOptions = {dialog: false, fullPath: ["test.json"]};
+    const saveOptions = {elementId: "file-input", dialog: false, fullPath: ["test.json"]};
 
     return (
         <div>
@@ -30,13 +32,13 @@ export default function FileModal() {
                 <Box style={style}>
                     <Typography variant="h5">Text in a modal</Typography>
                     <Typography>Duis mollis, est non commodo luctus, nisi erat porttitor ligula</Typography>
-                    <div style={{display:'flex',flexDirection:"row-reverse"}}>
+                    <div style={{display: 'flex', flexDirection: "row-reverse"}}>
                         <Button onClick={handleClose} variant="contained" color="default">Close modal</Button>
                         <Button onClick={handleClose} className="file-open"
-                                data-options={'{"dialog":"false","fullPaths":"[`C:/Users\\apett\\Downloads\\test.json`]"}'}
+                                data-options={JSON.stringify(openOptions)}
                                 variant="contained">Open File</Button>
                         <Button onClick={handleClose} className="file-save"
-                                data-options={'{"elementId":"file-input","dialog":"false","fullPath":"C:\\Users\\apett\\Downloads\\test.json"}'}
+                                data-options={JSON.stringify(saveOptions)}
                                 variant="contained">Save text</Button>
                     </div>
                 </Box>

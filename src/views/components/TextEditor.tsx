@@ -1,6 +1,5 @@
 import React, {useState} from "react";
 import {EditorState} from "draft-js";
-import {convertToHTML} from "draft-convert";
 import {Editor} from "react-draft-wysiwyg";
 
 function TextEditor() {
@@ -8,21 +7,16 @@ function TextEditor() {
     const [editorState, setEditorState] = useState(
         () => EditorState.createEmpty(),
     );
-    const  [, setConvertedContent] = useState(null);
     const handleEditorChange = (state: React.SetStateAction<EditorState>) => {
         setEditorState(state);
-        convertContentToHTML();
+        // convertContentToHTML();
     }
-    const convertContentToHTML = () => {
-        let currentContentAsHTML = convertToHTML(editorState.getCurrentContent());
-        // @ts-ignore
-        setConvertedContent(currentContentAsHTML);
-    }
+    // const convertContentToHTML = () => {
+    //     document.getElementById("editor-output")!.textContent = document.getElementsByClassName("DraftEditor-root")[0]!.innerHTML.toString();
+    // }
+    // <div id={"editor-output"} />
     return (
         <div className="Editor">
-            <header className="App-header">
-                Rich Text Editor Example
-            </header>
             <Editor
                 editorState={editorState}
                 onEditorStateChange={handleEditorChange}
