@@ -30,7 +30,7 @@ export default function Post(props: { fileName: string, index: number }) {
     // Functions
     async function checkCache() {
         const url = `http://localhost:3000/files/${props.fileName}`;
-        const cache = await caches.open(cacheName)
+        const cache = await caches.open(cacheName);
         const response = await cache.match(url);
         if (response === undefined) return;
         const data = await response.text();
@@ -38,7 +38,7 @@ export default function Post(props: { fileName: string, index: number }) {
         if (newState.editorState !== currentState.editorState && newState.html !== currentState.html) {
             setCurrentState(newState);
         }
-        // console.log(`state: ${currentState.html.length}`, `initialstate: ${initialState.html.length}`);
+        // console.log(`state: ${currentState.html.length}`, `initial state: ${initialState.html.length}`);
     }
 
     function imageCounter(html: Array<string>) {

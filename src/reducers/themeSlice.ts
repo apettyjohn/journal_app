@@ -20,6 +20,12 @@ export const themeSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(toggle, (state, { payload }) => {
             if (payload === 'light' || payload === 'dark') {
+                const appClasses = document.getElementsByTagName("body").item(0)!.classList;
+                if (state.value === 'light') {
+                    appClasses.replace("light-mode", "dark-mode");
+                } else {
+                    appClasses.replace("dark-mode", "light-mode");
+                }
                 state.value = payload;
             }
         });

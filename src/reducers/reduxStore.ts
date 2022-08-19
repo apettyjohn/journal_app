@@ -1,13 +1,15 @@
 import {configureStore} from "@reduxjs/toolkit";
 import {combineReducers} from "redux";
-import themeReducer from "./reducers/themeSlice";
-import userReducer from "./reducers/userSlice";
-import loadingReducer from "./reducers/LoadingSlice";
+import themeReducer from "./themeSlice";
+import userReducer from "./userSlice";
+import loadingReducer from "./LoadingSlice";
+import preferenceReducer from "./preferenceSlice";
 
 const rootReducer = combineReducers({
     theme: themeReducer,
-    user: userReducer,
+    users: userReducer,
     loading: loadingReducer,
+    preferences: preferenceReducer,
 });
 
 const store = configureStore({

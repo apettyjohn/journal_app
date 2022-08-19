@@ -4,23 +4,20 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {Provider} from "react-redux";
-import store from "./reduxStore";
+import store from "./reducers/reduxStore";
 import {CssBaseline} from "@material-ui/core";
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+    <React.StrictMode>
+        <Provider store={store}>
+            <CssBaseline />
+            <App />
+        </Provider>
+    </React.StrictMode>
 );
 setTimeout(() => {
     document.getElementsByClassName("splash-screen").item(0)!.remove();
-
-    root.render(
-        <React.StrictMode>
-            <Provider store={store}>
-                <CssBaseline />
-                <App />
-            </Provider>
-        </React.StrictMode>
-    );
 },1000);
 
 // If you want to start measuring performance in your app, pass a function

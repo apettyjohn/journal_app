@@ -3,7 +3,7 @@ import {CSSProperties} from "react";
 import ProfilePic from "./Components/ProfilePic";
 import {User} from "../../objects/user";
 import {useSelector} from "react-redux";
-import {Store} from "../../reduxStore";
+import {Store} from "../../reducers/reduxStore";
 
 function Login () {
     const headCardStyle: CSSProperties = {display: 'flex', flexDirection: "row-reverse"};

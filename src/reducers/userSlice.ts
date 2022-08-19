@@ -9,24 +9,25 @@ interface userState {
 // Setup
 const initialState: userState = {user: undefined,users: []};
 export const add = createAction<User>('add');
-export const update = createAction<User>('update');
+export const updateUser = createAction<User>('update');
+export const updateUsers = createAction<Array<User>>('update users');
 export const remove = createAction<number>('remove');
 export const select = createAction<number>('select');
 
 // Slice
 export const userSlice = createSlice({
-    name: 'theme',
+    name: 'users',
     initialState: initialState,
     reducers: {
-        reset (state = initialState) {
-            return { ...state};
+        reset (state) {
+            state.user = undefined;
         },
     },
     extraReducers: (builder) => {
         builder.addCase(add, (state, { payload }) => {
             state.users.push(payload);
         });
-        builder.addCase(update, (state, { payload }) => {
+        builder.addCase(updateUser, (state, { payload }) => {
             let temp = [...state.users];
             temp[temp.indexOf(payload)] = payload;
             state.users = temp;
@@ -38,6 +39,9 @@ export const userSlice = createSlice({
         });
         builder.addCase(select, (state, { payload }) => {
             state.user = state.users[payload];
+        });
+        builder.addCase(updateUsers, (state, { payload }) => {
+            state.users = payload;
         });
     }
 });

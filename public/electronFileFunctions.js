@@ -4,12 +4,13 @@ const jetpack = require("fs-jetpack");
 const dialog = electron.remote.dialog;
 
 let workingDir = [];
-const cacheName = "journal-app-files";
 const loadedFiles = [];
+const cacheName = "journal-app-files";
 // console.log(`cache supported: ${'caches' in window}`);
 
 const target = document.querySelector('body');
 const config = {childList: true};
+const specialConfig = {childList: true, subtree: true};
 const saveObserver = new MutationObserver(function () {
     const save = document.getElementsByClassName('file-save');
     if (save.length > 0) {
@@ -37,23 +38,39 @@ const postObserver = new MutationObserver(function () {
         }
     }
 });
+const appObserver = new MutationObserver(function () {
+    const app = document.getElementById("app");
+    if (app !== null && app.dataset.loaded === "") app.click();
+});
 saveObserver.observe(target, config);
 openObserver.observe(target, config);
-postObserver.observe(target, {childList: true, subtree: true});
-init().then();
+postObserver.observe(target, specialConfig);
+appObserver.observe(target, specialConfig);
+initFiles().then();
 
-async function init() {
-    const requiredFiles = ["users.json","preferences.json"];
+async function initFiles() {
+    const requiredFiles = ["users.json", "preferences.json", "files.json"];
     requiredFiles.forEach((filename) => jetpack.dir('files').file(filename));
     workingDir = jetpack.cwd('files').cwd().split('\\');
     for (const filename of requiredFiles) {
         const name = filename.split('.')[0];
-        try {
-            await readFile([filename]);
-        } catch {
-            await writeFile([filename],JSON.parse(`{"${name}":[]}`));
+        let file = undefined;
+        if (name === "files") {
+            const fileList = jetpack.cwd('files').find(".");
+            requiredFiles.forEach((file) => {
+                if (fileList.includes(file)) fileList.splice(fileList.indexOf(file), 1);
+            });
+            file = JSON.parse(`{"${name}":${JSON.stringify(fileList)}}`);
+            await writeFile([filename], file);
+        } else {
+            try {
+                file = await readFile([filename]);
+            } catch {
+                file = JSON.parse(`{"${name}":[]}`);
+                await writeFile([filename], file);
+            }
         }
-        await checkCachedFile(filename);
+        await checkCachedFile(filename, null, file);
     }
 }
 
@@ -121,7 +138,7 @@ async function writeFile(filePath, data) {
             root.dir(filePath[i]);
         }
     }
-    const path = (filePath[0].includes('\\'))? filePath[0]: workingDir.concat(filePath).join('\\')
+    const path = (filePath[0].includes('\\')) ? filePath[0] : workingDir.concat(filePath).join('\\')
     await jetpack.writeAsync(path, data);
     console.log(`Saved ${path}`)
 }
@@ -133,7 +150,7 @@ async function openFileDialog() {
         options = {...defaults, ...JSON.parse(this.dataset.options)};
     }
     let props = ["openFile", "openDirectory"];
-    props = (options.directory)? props.pop() : props.slice(0,1);
+    props = (options.directory) ? props.pop() : props.slice(0, 1);
 
     if (options.dialog === true) {
         const file = await dialog.showOpenDialog({
@@ -144,7 +161,7 @@ async function openFileDialog() {
         });
         try {
             if (!file.canceled) {
-                if (options.directory){
+                if (options.directory) {
                     console.log(jetpack.cwd());
                     const files = jetpack.find(file.filePaths[0]);
                     console.log(files);
@@ -167,7 +184,7 @@ async function openFileDialog() {
 async function readFile(filePath, display) {
     const fileExtension = filePath[filePath.length - 1].split(".").pop();
     // Load file
-    const path = (display)? filePath[0]: workingDir.concat(filePath).join('\\')
+    const path = (display) ? filePath[0] : workingDir.concat(filePath).join('\\')
     const data = await jetpack.readAsync(path, fileExtension);
     console.log(`Opened file ${filePath}`);
 
@@ -195,13 +212,14 @@ async function loadPost(element) {
     element.click();
 }
 
-async function checkCachedFile(fileName, filePath = null){
+async function checkCachedFile(fileName, filePath = null, file) {
     if (filePath === null) filePath = [fileName];
     caches.open(cacheName).then(async (cache) => {
         const url = `http://localhost:3000/files/${fileName}`;
         const response = await cache.match(url);
         if (response === undefined || !loadedFiles.includes(fileName)) {
-            const data = await readFile(filePath, false);
+            let data;
+            if (file) data = file; else data = await readFile(filePath, false);
             let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
             output.url = url;
             await cache.put(url, output);
