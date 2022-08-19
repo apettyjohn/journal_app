@@ -1,7 +1,7 @@
 import {Button, Card, CardActionArea, CardContent, IconButton, Typography} from "@material-ui/core";
-import ColorCircle from "./components/ColorCircle";
-import ProfilePic from "./components/ProfilePic";
-import {User} from "../objects/user";
+import ColorCircle from "./Components/ColorCircle";
+import ProfilePic from "../Login/Components/ProfilePic";
+import {User} from "../../objects/user";
 import {ArrowBack, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
 
 function Account() {

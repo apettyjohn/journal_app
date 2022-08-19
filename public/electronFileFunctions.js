@@ -3,10 +3,10 @@ const path = require('path');
 const jetpack = require("fs-jetpack");
 const dialog = electron.remote.dialog;
 
+let workingDir = [];
 const cacheName = "journal-app-files";
-const workingDir = ["C:", "Users", "apett", "Downloads"];
 const loadedFiles = [];
-console.log(`cache supported: ${'caches' in window}`);
+// console.log(`cache supported: ${'caches' in window}`);
 
 const target = document.querySelector('body');
 const config = {childList: true};
@@ -40,9 +40,21 @@ const postObserver = new MutationObserver(function () {
 saveObserver.observe(target, config);
 openObserver.observe(target, config);
 postObserver.observe(target, {childList: true, subtree: true});
+init().then();
 
-function init() {
-    return;
+async function init() {
+    const requiredFiles = ["users.json","preferences.json"];
+    requiredFiles.forEach((filename) => jetpack.dir('files').file(filename));
+    workingDir = jetpack.cwd('files').cwd().split('\\');
+    for (const filename of requiredFiles) {
+        const name = filename.split('.')[0];
+        try {
+            await readFile([filename]);
+        } catch {
+            await writeFile([filename],JSON.parse(`{"${name}":[]}`));
+        }
+        await checkCachedFile(filename);
+    }
 }
 
 async function saveFileDialog() {

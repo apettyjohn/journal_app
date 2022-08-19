@@ -11,7 +11,7 @@ const initialState: userState = {user: undefined,users: []};
 export const add = createAction<User>('add');
 export const update = createAction<User>('update');
 export const remove = createAction<number>('remove');
-export const select = createAction<User>('select');
+export const select = createAction<number>('select');
 
 // Slice
 export const userSlice = createSlice({
@@ -37,7 +37,7 @@ export const userSlice = createSlice({
             }
         });
         builder.addCase(select, (state, { payload }) => {
-            state.user = payload;
+            state.user = state.users[payload];
         });
     }
 });

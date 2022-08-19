@@ -1,4 +1,4 @@
-import TextEditor from "./components/TextEditor";
+import TextEditor from "./Components/TextEditor";
 import {Button, Card, CardContent} from "@material-ui/core";
 import {useLocation} from "react-router-dom";
 import React from "react";

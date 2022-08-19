@@ -1,9 +1,9 @@
 import {Button, Card, CardContent, IconButton, Typography} from "@material-ui/core";
 import {Add, KeyboardArrowLeft, KeyboardArrowRight, SkipNext, SkipPrevious} from "@material-ui/icons";
-import ProfilePic from "./components/ProfilePic";
-import {User} from "../objects/user";
+import ProfilePic from "../Login/Components/ProfilePic";
+import {User} from "../../objects/user";
 import {CSSProperties} from "react";
-import Post from "./components/Post";
+import Post from "./Components/Post";
 
 function Main() {
     const user = {id: 1, name: "Adam Pettyjohn"} as User;

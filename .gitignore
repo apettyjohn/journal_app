@@ -3,6 +3,7 @@
 /dist
 /build
 /out
+/files
 
 # dependencies
 /node_modules

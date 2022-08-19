@@ -2,14 +2,14 @@ import React from 'react';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import {BrowserRouter, Link, Route, Routes} from 'react-router-dom';
 import './App.css';
-import Account from "./views/Account";
-import Edit from "./views/Edit";
-import Login from "./views/Login";
-import Main from "./views/Main";
+import Account from "./views/Account/Account";
+import Edit from "./views/Edit/Edit";
+import Login from "./views/Login/Login";
+import Main from "./views/Main/Main";
 import {Store} from "./reduxStore";
 import {useDispatch, useSelector} from "react-redux";
 import {toggle} from "./reducers/themeSlice";
-import FileModal from "./views/components/FileModal";
+import FileModal from "./views/Other/FileModal";
 import {Button} from "@material-ui/core";
 
 function App() {
@@ -22,9 +22,12 @@ function App() {
             appClasses.replace("light-mode", "dark-mode") :
             appClasses.replace("dark-mode", "light-mode");
     }
+    async function init() {
+
+    }
 
     return (
-        <div id="app">
+        <div id="app" data-loaded="" onClick={init}>
             <BrowserRouter>
                 <div style={{border: '1px solid'}}>
                     <div style={{display: 'flex', flexDirection: 'row'}}>

@@ -1,5 +1,5 @@
 import React, {CSSProperties} from 'react';
-import {User} from "../../objects/user";
+import {User} from "../../../objects/user";
 
 function parseName(name: string){
     const list: Array<string> = name.toUpperCase().split(' ');

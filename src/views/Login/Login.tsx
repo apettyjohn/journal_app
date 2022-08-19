@@ -1,9 +1,9 @@
 import {Button, Card, CardActionArea, CardContent, Typography} from "@material-ui/core";
 import {CSSProperties} from "react";
-import ProfilePic from "./components/ProfilePic";
-import {User} from "../objects/user";
+import ProfilePic from "./Components/ProfilePic";
+import {User} from "../../objects/user";
 import {useSelector} from "react-redux";
-import {Store} from "../reduxStore";
+import {Store} from "../../reduxStore";
 
 function Login () {
     const headCardStyle: CSSProperties = {display: 'flex', flexDirection: "row-reverse"};
@@ -18,7 +18,7 @@ function Login () {
         justifyContent: "center",
         paddingTop: '10%',
     };
-    const users: Array<User> = [{id: 1, name: "Adam Pettyjohn"} as User];;
+    const users: Array<User> = [{id: 1, name: "Adam Pettyjohn"} as User];
 
     return(<div className="view">
         <div style={{display: "flex", justifyContent: "center", flexGrow: '1'}}>
