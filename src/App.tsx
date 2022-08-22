@@ -11,10 +11,11 @@ import {useDispatch, useSelector} from "react-redux";
 import {toggle} from "./reducers/themeSlice";
 import FileModal from "./views/Other/FileModal";
 import {Button} from "@material-ui/core";
-import {updateUsers} from "./reducers/userSlice";
 import {User} from "./objects/user";
 import {Preference} from "./objects/preference";
-import {set} from "./reducers/preferenceSlice";
+import {setPreferences} from "./reducers/preferenceSlice";
+import {updateUsers} from "./reducers/userSlice";
+import {setFiles} from "./reducers/fileSlice";
 
 interface UsersJson { users: Array<User> }
 interface PreferencesJson { preferences: Array<Preference> }
@@ -26,7 +27,7 @@ export default function App() {
     const preferences = useSelector((state: Store) => state.preferences.preferences);
 
     function logState(){
-        console.log(JSON.stringify(users),JSON.stringify(preferences));
+        // console.log(JSON.stringify(users),JSON.stringify(preferences));
         const app = document.getElementById("app");
         if (app !== null && app.dataset.loaded === "") {
             app.addEventListener("click",init);
@@ -52,7 +53,10 @@ export default function App() {
                 dispatch(updateUsers(newState.users));
             } else if (name === "preferences") {
                 const newState = JSON.parse(data) as PreferencesJson;
-                dispatch(set(newState.preferences));
+                dispatch(setPreferences(newState.preferences));
+            } else if (name === "preferences") {
+                const newState = JSON.parse(data) as {files: Array<string>};
+                dispatch(setFiles(newState.files));
             }
         }
         // console.log("ran app init");

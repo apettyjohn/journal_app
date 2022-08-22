@@ -42,10 +42,15 @@ const appObserver = new MutationObserver(function () {
     const app = document.getElementById("app");
     if (app !== null && app.dataset.loaded === "") app.click();
 });
+const editorObserver = new MutationObserver(function () {
+    const editor = document.getElementById("editor");
+    if (editor !== null && editor.dataset.checked === "") editor.click();
+});
 saveObserver.observe(target, config);
 openObserver.observe(target, config);
 postObserver.observe(target, specialConfig);
 appObserver.observe(target, specialConfig);
+editorObserver.observe(target, specialConfig);
 initFiles().then();
 
 async function initFiles() {
@@ -214,17 +219,20 @@ async function loadPost(element) {
 
 async function checkCachedFile(fileName, filePath = null, file) {
     if (filePath === null) filePath = [fileName];
-    caches.open(cacheName).then(async (cache) => {
-        const url = `http://localhost:3000/files/${fileName}`;
-        const response = await cache.match(url);
-        if (response === undefined || !loadedFiles.includes(fileName)) {
-            let data;
-            if (file) data = file; else data = await readFile(filePath, false);
-            let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
-            output.url = url;
-            await cache.put(url, output);
-            loadedFiles.push(fileName);
-            console.log(`loaded file and cached response for ${fileName}`);
+    const cache = await caches.open(cacheName);
+    const url = `http://localhost:3000/files/${fileName}`;
+    const response = await cache.match(url);
+    if (response === undefined || !loadedFiles.includes(fileName)) {
+        let data;
+        if (file) data = file; else data = await readFile(filePath, false);
+        if (data === undefined){
+            console.log(`failed to load ${fileName}`);
+            return;
         }
-    });
+        let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
+        output.url = url;
+        await cache.put(url, output);
+        loadedFiles.push(fileName);
+        console.log(`loaded file and cached response for ${fileName}`);
+    }
 }

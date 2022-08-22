@@ -29,7 +29,7 @@ function Account() {
         <div className="view" style={{display: 'flex', flexDirection: 'row'}}>
 
             <div style={{display: 'flex', flexDirection: 'column', justifyContent: "center"}}>
-                <Card>
+                <Card style={{margin: "1em"}}>
                     <CardContent id="account-side-menu" onMouseEnter={showLabels} onMouseLeave={hideLabels}>
                         <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
                             <Button startIcon={<ArrowBack/>} fullWidth></Button>
@@ -49,7 +49,7 @@ function Account() {
 
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: "center", flexGrow: '1'}}>
                 <div style={{display: 'flex', flexDirection: 'column', flexGrow: '1', maxWidth: "800px"}}>
-                    <Card style={{overflow: 'visible'}}>
+                    <Card style={{overflow: 'visible', margin: "1em"}}>
                         <CardContent style={{
                             display: "flex",
                             flexDirection: "row",
@@ -105,7 +105,7 @@ function Account() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card style={{overflow: 'visible'}}>
+                    <Card style={{overflow: 'visible', margin: "1em"}}>
                         <CardContent style={{marginRight: '2em', marginLeft: '2em'}}>
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>System Theme
@@ -127,7 +127,7 @@ function Account() {
                             </div>
                             <div style={{
                                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                                marginTop: '1em', marginBottom: '1em'
+                                marginTop: '2em', marginBottom: '2em'
                             }}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Accent Color
                                     :</Typography>

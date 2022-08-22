@@ -1,8 +1,8 @@
-import TextEditor from "./Components/TextEditor";
-import {Button, Card, CardContent} from "@material-ui/core";
-import {useLocation} from "react-router-dom";
 import React from "react";
+import {useLocation} from "react-router-dom";
 import {RawDraftContentState} from "draft-js";
+import {Button, Card, CardContent, Typography} from "@material-ui/core";
+import TextEditor from './Components/DraftJSEditor';
 
 interface location {
     editorState?: RawDraftContentState
@@ -10,12 +10,13 @@ interface location {
 
 function Edit () {
     const location = useLocation();
-    const state = location.state as location;
+    const editorBlob = location.state as location;
 
     return(<div className="view">
-        <Card>
+        <Card style={{margin: "1em"}}>
             <CardContent>
-                <TextEditor editorState={(state === null)? undefined: state.editorState}/>
+                <Typography variant={"h3"} style={{marginBottom: "0.2em", marginLeft: "0.5em"}}>Date</Typography>
+                <TextEditor />
             </CardContent>
         </Card>
         <div style={{display: "flex", flexDirection: "row-reverse", margin: "2em"}}>

@@ -34,7 +34,6 @@ a {
 }
 
 .MuiCard-root {
-    margin: 1rem !important;
     border: 1px solid var(--text) !important;
     box-shadow: 0 2px 1px 0 !important;
     color: var(--shadow) !important;
@@ -50,9 +49,27 @@ a {
 
 .MuiBox-root *{ margin: 1em !important; }
 
+.MuiPopover-paper {
+    color: inherit !important;
+    background-color: var(--div) !important;
+    border-radius: 1em !important;
+    border: 1px solid;
+    padding: 1em;
+}
+
+.MuiInputBase-input, .Mui-focused { color: var(--text) !important;}
+
+.MuiFormLabel-root { color: var(--systemText) !important;}
+
+.MuiFormLabel-root.Mui-focused { color: var(--text) !important;}
+
+.MuiFilledInput-underline::before, .MuiFilledInput-underline::after, .MuiInput-underline::before, .MuiInput-underline::after {
+    border-color: var(--text) !important
+}
+
 .DraftEditor-editorContainer { border: none !important; }
 
-div[role="presentation"] { background-color: rgb(0 0 0 / 50%) !important; }
+div[role="presentation"] { background-color: rgb(0 0 0 / 0%) !important; }
 
 #app  {
     height: 100%;

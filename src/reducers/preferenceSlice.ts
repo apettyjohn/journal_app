@@ -9,7 +9,7 @@ interface preferenceState {
 const initialState: preferenceState = { preferences: [] };
 export const add = createAction<Preference>('add');
 export const remove = createAction<Preference>('remove');
-export const set = createAction<Array<Preference>>('set');
+export const setPreferences = createAction<Array<Preference>>('set');
 
 // Slice
 export const preferenceSlice = createSlice({
@@ -27,7 +27,7 @@ export const preferenceSlice = createSlice({
         builder.addCase(remove, (state, { payload }) => {
             state.preferences.splice(state.preferences.indexOf(payload),1);
         });
-        builder.addCase(set, (state, { payload }) => {
+        builder.addCase(setPreferences, (state, { payload }) => {
             state.preferences = payload;
         });
     }
