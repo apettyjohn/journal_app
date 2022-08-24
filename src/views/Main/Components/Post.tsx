@@ -88,7 +88,7 @@ export default function Post(props: { fileName: string, index: number }) {
                             <div style={skeletonStyle()}></div>
                             <div style={skeletonStyle({marginRight: "20%"})}></div>
                         </div> :
-                        <Link to="/edit" state={{editorState: currentState.editorState}} style={contentStyle}>
+                        <Link to="/edit" state={currentState} style={contentStyle}>
                             <div dangerouslySetInnerHTML={{__html: currentState.html.join("'")}}></div>
                         </Link>}
                 </CardContent>

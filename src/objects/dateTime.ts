@@ -32,3 +32,17 @@ export function parseDate(day: number, month: number, year: number) {
     return {day: day,month: month, year: year, weekdayName: date[0], monthName: date[1],
         weekdayNumber: weekDaysLong.indexOf(date[0])} as DateTime;
 }
+
+export function stringifyDateTime(d: DateTime, numberOnly?: Boolean, notTime?: Boolean){
+    if (numberOnly){
+        return [d.month.toString(),d.day.toString(),d.year.toString()].join('/');
+    } else {
+        let out = [d.weekdayName,d.monthName,d.day.toString(),d.year.toString()];
+        if (d.time && !notTime) {
+            const time = [d.time.hour.toString(), d.time.minute.toString(),d.time.second.toString()].join(':')+` ${d.time.amOrPm}`;
+            out.push(time);
+        }
+        return out.join(' ');
+    }
+
+}

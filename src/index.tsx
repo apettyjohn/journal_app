@@ -9,16 +9,14 @@ import {CssBaseline} from "@material-ui/core";
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <CssBaseline />
-            <App />
-        </Provider>
-    </React.StrictMode>
+    <Provider store={store}>
+        <CssBaseline/>
+        <App/>
+    </Provider>
 );
 setTimeout(() => {
     document.getElementsByClassName("splash-screen").item(0)!.remove();
-},1000);
+}, 1000);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

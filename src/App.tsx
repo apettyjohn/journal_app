@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import {BrowserRouter, Link, Route, Routes} from 'react-router-dom';
 import './App.css';
 import Account from "./views/Account/Account";

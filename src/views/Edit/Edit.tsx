@@ -1,29 +1,30 @@
 import React from "react";
 import {useLocation} from "react-router-dom";
 import {RawDraftContentState} from "draft-js";
-import {Button, Card, CardContent, Typography} from "@material-ui/core";
+import {Typography} from "@material-ui/core";
 import TextEditor from './Components/DraftJSEditor';
+import {DateTime, stringifyDateTime} from "../../objects/dateTime";
+import {useSelector} from "react-redux";
+import {Store} from "../../reducers/reduxStore";
 
 interface location {
-    editorState?: RawDraftContentState
+    editorState?: RawDraftContentState,
+    html?: Array<string>,
+    date?: DateTime
 }
 
-function Edit () {
+export default function Edit() {
+    const currentDay = useSelector((state: Store) => state.date.selected);
     const location = useLocation();
     const editorBlob = location.state as location;
 
-    return(<div className="view">
-        <Card style={{margin: "1em"}}>
-            <CardContent>
-                <Typography variant={"h3"} style={{marginBottom: "0.2em", marginLeft: "0.5em"}}>Date</Typography>
-                <TextEditor />
-            </CardContent>
-        </Card>
-        <div style={{display: "flex", flexDirection: "row-reverse", margin: "2em"}}>
-            <Button variant="contained" size="large">Save</Button>
-            <span style={{width: "2em"}} />
-            <Button variant="contained" size="large">Close</Button>
-        </div>
-    </div>);
+    return (
+        <div className="view">
+            <div style={{display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "1em"}}>
+                <Typography variant={"h3"} style={{marginBottom: "0.2em"}} id={'post-date'}>
+                    {(editorBlob && editorBlob.date) ? stringifyDateTime(editorBlob.date) : stringifyDateTime(currentDay, false,true)}
+                </Typography>
+                <TextEditor editorBlob={editorBlob}/>
+            </div>
+        </div>);
 }
-export default Edit;

@@ -41,7 +41,24 @@ a {
     background-color: var(--div) !important;
 }
 
-.MuiIconButton-root { color: var(--text) !important; }
+.MuiIconButton-root.edit-icon-btn {
+    color: var(--text) !important;
+    box-shadow: 0 1px 6px 0 var(--shadow);
+    margin: 5px;
+}
+
+.MuiIconButton-root.edit-submenu-icon {
+    color: var(--text) !important;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    box-shadow: 0 1px 6px 0 var(--shadow);
+    margin: 5px;
+}
+
+#settings-menu *.MuiIconButton-root { padding: 0.2rem; }
+
+.public-DraftStyleDefault-block { margin: 0 !important; }
 
 .MuiSvgIcon-root { color: var(--text) !important; }
 
