@@ -2,13 +2,14 @@ import React, {Component} from "react";
 import {convertFromRaw, convertToRaw, EditorState, getDefaultKeyBinding, KeyBindingUtil, RichUtils} from "draft-js";
 import Editor from "draft-js-plugins-editor";
 import {
+    Box,
     Button,
     Card,
     CardContent,
     Checkbox,
     IconButton,
     List,
-    ListItem,
+    ListItem, Modal,
     Typography
 } from "@material-ui/core";
 import {
@@ -21,6 +22,9 @@ import {
     Settings
 } from "@material-ui/icons";
 import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd';
+import {useNavigate} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {setAllFiles} from "../../../reducers/fileSlice";
 
 const {hasCommandModifier} = KeyBindingUtil;
 const debug = false;
@@ -48,13 +52,25 @@ export default class TextEditor extends Component {
         const number = header.split('-')[1];
         return "h"+(numbers.indexOf(number)+1).toString();
     };
+    cacheState = async () => {
+        if (!this.user) return;
+        const cacheName = "journal-app-files";
+        const cache = await caches.open(cacheName);
+        const url = "http://localhost:3000/editorState";
+        let output = new Response(JSON.stringify({...this.props.editorProps,
+            editorState: convertToRaw(this.state.editorState.getCurrentContent()),
+            html: document.getElementsByClassName("DraftEditor-root")[0].innerHTML.split('"')}),
+            {status: 200, statusText: "ok"});
+        await cache.put(url, output);
+    };
+
     keyBindingFn = (e) => {
         // console.log(e.key);
         if (e.key === 'h' && hasCommandModifier(e)) {
             return 'highlight';
         }
         return getDefaultKeyBinding(e);
-    }
+    };
     handleKeyCommand = (command) => {
         const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
         if (command === 'highlight') {
@@ -66,10 +82,10 @@ export default class TextEditor extends Component {
             return 'handled';
         }
         return 'not-handled';
-    }
+    };
 
     onChange = editorState => {
-        this.setState({editorState: editorState});
+        this.setState({editorState: editorState, changed: true});
         if (debug) this.convertContentToHTML();
     };
     onCheckBoxChange = (e) => {
@@ -98,7 +114,7 @@ export default class TextEditor extends Component {
             tempButtonNames.splice(actualIndex, 0, label);
             this.setState({buttons: tempButtons, buttonNames: tempButtonNames});
         }
-    }
+    };
     onDragChange = (result) => {
         if (!result.destination) return;
         let destination = result.destination.index;
@@ -137,7 +153,7 @@ export default class TextEditor extends Component {
                 settingsMenuButtonNames: tempMenuButtonNames
             });
         }
-    }
+    };
 
     onUnderlineClick = () => {
         this.onChange(
@@ -228,8 +244,8 @@ export default class TextEditor extends Component {
         //     componentType: "select"
         // },
         {
-            clickFunc: ()=>{},
-            component: <div style={{display: "inline-flex", borderRadius: "1em", alignItems: "center", margin: "5px"}}>
+            clickFunc: null,
+            component: (index) => <div key={index} style={{display: "inline-flex", borderRadius: "1em", alignItems: "center", margin: "5px"}}>
                 {this.headings.map(
                     (name, i) => <IconButton key={i} className={'edit-submenu-icon'}
                                              onClick={this.onHeaderTypeClick} data-label={name}>
@@ -243,13 +259,16 @@ export default class TextEditor extends Component {
     ];
     defaultSettingsMenu = ["Bold", "Underline", "Italic", "Strike through", "Code block", "Highlight",
         "Clear Format", "Quote", "Unordered List", "Ordered List", "Header Type"];
-    initialState = (this.props.editorBlob) ?
-        EditorState.createWithContent(convertFromRaw(this.props.editorBlob.editorState)) :
+    initialState = (this.props.editorProps && this.props.editorProps.editorState) ?
+        EditorState.createWithContent(convertFromRaw(this.props.editorProps.editorState)) :
         EditorState.createEmpty();
+    user = (this.props.editorProps && this.props.editorProps.user)? this.props.editorProps.user:undefined;
+    date = (this.props.editorProps && this.props.editorProps.date)? this.props.editorProps.date:undefined;
 
     constructor(props) {
         super(props);
         this.state = {
+            changed: false,
             editorState: this.initialState,
             buttons: this.defaultButtons,
             buttonNames: this.defaultSettingsMenu,
@@ -257,7 +276,7 @@ export default class TextEditor extends Component {
             settingsMenuButtons: this.defaultButtons,
             settingsMenuButtonNames: this.defaultSettingsMenu
         };
-    }
+    };
 
     render() {
         return (
@@ -272,7 +291,7 @@ export default class TextEditor extends Component {
                                     return <IconButton onClick={button.clickFunc} key={i} className={'edit-icon-btn'}
                                                        style={{transform: "scale(0.9)"}}>{button.component}</IconButton>;
                                 } else {
-                                    return button.component;
+                                    return button.component(i);
                                 }
                             })}
                         </CardContent>
@@ -294,12 +313,14 @@ export default class TextEditor extends Component {
                             <div id={'editor-output'} style={{whiteSpace: "pre-line"}}/>
                         </CardContent>
                     </Card> : <div/>}
-                    <div style={{display: "flex", justifyContent: "center", margin: "2em"}}>
-                        <Button variant="contained" size="large">Close</Button>
+                    <div style={{display: "flex", margin: "2em"}}>
+                        <Delete filename={this.props.editorProps.filename} user={this.props.editorProps.user}/>
+                        <span style={{flexGrow: "1"}} />
+                        <Close />
                         <span style={{width: "2em"}}/>
-                        <Button variant="contained" size="large"
-                                disabled={this.state.editorState === this.initialState}>
-                            Save</Button>
+                        <Button variant="contained" size="large" className="file-save" id="save-post" onClick={this.cacheState}
+                                disabled={!this.state.changed && Boolean(this.props.editorProps.user)}>Save
+                        </Button>
                     </div>
                 </div>
                 {this.state.showSettingsMenu ?
@@ -331,4 +352,63 @@ export default class TextEditor extends Component {
             </div>
         );
     }
+}
+
+const Close = () => {
+    const navigate = useNavigate();
+    return (<Button variant="contained" size="large" onClick={() => navigate('/main')}>Close</Button>);
+}
+const Delete = (props) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const files = useSelector((state) => state.files.allFiles);
+    const [open, setOpen] = React.useState(false);
+    const boxStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        border: '2px solid',
+        outline: '0',
+        borderRadius: '2em',
+        padding: '1em'
+    };
+    console.log(JSON.stringify(files));
+
+    function handleClose() {
+        setOpen(false);
+    }
+    async function cachePostToDelete() {
+        const cacheName = "journal-app-files";
+        const cache = await caches.open(cacheName);
+        const url = "http://localhost:3000/deletePost";
+        let output = new Response(JSON.stringify(
+            {filename: props.filename,
+                directory: `${props.user.name}-${props.user.id}`}),
+            {status: 200, statusText: "ok"});
+        await cache.put(url, output);
+        let temp = [...files];
+        temp.splice(files.indexOf(props.filename),1);
+        dispatch(setAllFiles({files: temp,user: props.user}));
+    }
+
+    return (
+        <div>
+            <Button variant="contained" size="large" onClick={() => setOpen(true)} disabled={!props.filename}>Delete</Button>
+            <Modal open={open} onClose={handleClose}>
+                <Box style={boxStyle}>
+                    <Typography variant="h5" style={{textAlign: "center"}}>Are you sure you want to delete?</Typography>
+                    <div style={{display: 'flex'}}>
+                        <Button onClick={handleClose} variant="contained" style={{width: "50%"}}>Close</Button>
+
+                        <Button variant="contained" className="file-save" id="delete-post" color="secondary"
+                                onClick={async () => {
+                                    if (!Boolean(props.user)) return;
+                                    await cachePostToDelete();
+                                    setTimeout(() => navigate('/main'),200);}} style={{width: "50%"}}>Delete
+                        </Button>
+                    </div>
+                </Box>
+            </Modal>
+        </div>);
 }

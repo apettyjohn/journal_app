@@ -1,12 +1,13 @@
 import React, {CSSProperties} from 'react';
 import {User} from "../../../objects/user";
 
-function parseName(name: string){
+export function parseName(name: string){
     const list: Array<string> = name.toUpperCase().split(' ');
-    return list[0][0];
+    if (list.length > 1) return list[0][0]+list[list.length-1][0];
+    else return list[0][0];
 }
 
-function ProfilePic(props: {size?: string, user: User}) {
+export default function ProfilePic(props: {size?: string, user: User}) {
     const imgStyle: CSSProperties = {height:"inherit",width:"inherit", borderRadius:"inherit"};
     let divStyle: CSSProperties = {
         height: '60px',
@@ -31,5 +32,3 @@ function ProfilePic(props: {size?: string, user: User}) {
     return (
         <div style={divStyle}>{body}</div>);
 }
-
-export default ProfilePic;

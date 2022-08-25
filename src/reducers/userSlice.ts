@@ -8,11 +8,11 @@ interface userState {
 
 // Setup
 const initialState: userState = {user: undefined,users: []};
-export const add = createAction<User>('add');
-export const updateUser = createAction<User>('update');
-export const updateUsers = createAction<Array<User>>('update users');
-export const remove = createAction<number>('remove');
-export const select = createAction<number>('select');
+export const add = createAction<User>('addUser');
+export const updateUser = createAction<User>('updateUser');
+export const updateUsers = createAction<Array<User>>('updateUsers');
+export const remove = createAction<number>('removeUser');
+export const selectUser = createAction<number>('selectUser');
 
 // Slice
 export const userSlice = createSlice({
@@ -37,7 +37,7 @@ export const userSlice = createSlice({
                 state.users.splice(payload,1);
             }
         });
-        builder.addCase(select, (state, { payload }) => {
+        builder.addCase(selectUser, (state, { payload }) => {
             state.user = state.users[payload];
         });
         builder.addCase(updateUsers, (state, { payload }) => {

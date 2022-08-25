@@ -14,7 +14,7 @@ export const weekDaysLong = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export const weekDaysShort = ["S", "M", "T", "W", "T", "F", "S"];
 
-export const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+export const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -44,5 +44,4 @@ export function stringifyDateTime(d: DateTime, numberOnly?: Boolean, notTime?: B
         }
         return out.join(' ');
     }
-
 }

@@ -7,9 +7,9 @@ interface preferenceState {
 
 // Setup
 const initialState: preferenceState = { preferences: [] };
-export const add = createAction<Preference>('add');
-export const remove = createAction<Preference>('remove');
-export const setPreferences = createAction<Array<Preference>>('set');
+export const add = createAction<Preference>('addPreference');
+export const remove = createAction<Preference>('removePreference');
+export const setPreferences = createAction<Array<Preference>>('setPreferences');
 
 // Slice
 export const preferenceSlice = createSlice({

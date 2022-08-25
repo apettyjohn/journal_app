@@ -6,25 +6,29 @@ import TextEditor from './Components/DraftJSEditor';
 import {DateTime, stringifyDateTime} from "../../objects/dateTime";
 import {useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
+import {User} from "../../objects/user";
 
 interface location {
     editorState?: RawDraftContentState,
     html?: Array<string>,
-    date?: DateTime
+    date?: DateTime,
+    user?: User,
+    fileName: string
 }
 
 export default function Edit() {
-    const currentDay = useSelector((state: Store) => state.date.selected);
+    const today = useSelector((state: Store) => state.date.today);
     const location = useLocation();
-    const editorBlob = location.state as location;
+    let editorBlob = location.state as location;
+    if (!editorBlob || !editorBlob.date) editorBlob = {date: today} as location;
 
     return (
         <div className="view">
             <div style={{display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "1em"}}>
                 <Typography variant={"h3"} style={{marginBottom: "0.2em"}} id={'post-date'}>
-                    {(editorBlob && editorBlob.date) ? stringifyDateTime(editorBlob.date) : stringifyDateTime(currentDay, false,true)}
+                    {stringifyDateTime(editorBlob.date!, false, true)}
                 </Typography>
-                <TextEditor editorBlob={editorBlob}/>
+                <TextEditor editorProps={editorBlob}/>
             </div>
         </div>);
 }

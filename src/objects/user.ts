@@ -2,9 +2,9 @@ import {DateTime} from "./dateTime";
 
 export interface User {
     id: number,
-    name?: string,
+    name: string,
     imgSrc?: string,
-    totalEntries?: number,
-    maxEntriesPerDay?: number,
-    joinDate?: DateTime
+    totalEntries: number,
+    maxEntriesPerDay: number,
+    joinDate: DateTime
 }

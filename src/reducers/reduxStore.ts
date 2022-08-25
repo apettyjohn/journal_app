@@ -4,16 +4,16 @@ import themeReducer from "./themeSlice";
 import userReducer from "./userSlice";
 import loadingReducer from "./LoadingSlice";
 import preferenceReducer from "./preferenceSlice";
-import fileReducer from "./fileSlice";
 import dateReducer from "./dateSlice";
+import fileReducer from "./fileSlice";
 
 const rootReducer = combineReducers({
     theme: themeReducer,
     users: userReducer,
     loading: loadingReducer,
     preferences: preferenceReducer,
-    files: fileReducer,
     date: dateReducer,
+    files: fileReducer,
 });
 
 const store = configureStore({

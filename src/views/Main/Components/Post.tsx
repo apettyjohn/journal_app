@@ -1,13 +1,18 @@
 import {Card, CardContent, CardMedia} from "@material-ui/core";
 import {CSSProperties, useState} from "react";
 import {Link} from "react-router-dom";
+import {DateTime} from "../../../objects/dateTime";
+import {User} from "../../../objects/user";
 
 interface state {
     editorState: {},
-    html: Array<string>
+    html: Array<string>,
+    date?: DateTime,
+    user?: User,
+    filename: string
 }
 
-export default function Post(props: { fileName: string, index: number }) {
+export default function Post(props: { fileName: string, index: number, dirName: string }) {
     // Styles
     const cardStyle: CSSProperties = {display: "flex", flexDirection: "row", width: "94%"};
     const contentStyle: CSSProperties = {display: "flex", flexGrow: "1", overflow: "hidden"};
@@ -23,7 +28,7 @@ export default function Post(props: { fileName: string, index: number }) {
         return {...defaults, ...props};
     }
     // State
-    const initialState: state = {editorState: {}, html: []};
+    const initialState: state = {editorState: {}, html: [], filename: props.fileName};
     const [currentState, setCurrentState] = useState(initialState);
     const cacheName = "journal-app-files";
 
@@ -36,9 +41,8 @@ export default function Post(props: { fileName: string, index: number }) {
         const data = await response.text();
         const newState = JSON.parse(data) as state;
         if (newState.editorState !== currentState.editorState && newState.html !== currentState.html) {
-            setCurrentState(newState);
+            setCurrentState({...currentState,...newState});
         }
-        // console.log(`state: ${currentState.html.length}`, `initial state: ${initialState.html.length}`);
     }
 
     function imageCounter(html: Array<string>) {
@@ -78,7 +82,7 @@ export default function Post(props: { fileName: string, index: number }) {
     }
 
     return (
-        <div className="post" data-filename={props.fileName} data-loaded=""
+        <div className="post" data-filepath={`["${props.dirName}","${props.fileName}"]`} data-loaded=""
              style={{width: "50%", maxWidth: '800px', maxHeight: '200px'}} onClick={checkCache} key={props.index}>
             <Card style={cardStyle}>
                 <CardContent style={contentStyle}>

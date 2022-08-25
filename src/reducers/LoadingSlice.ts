@@ -6,7 +6,7 @@ interface loadingState {
 
 // Setup
 const initialState: loadingState = {value: false};
-export const toggle = createAction<boolean>('toggle');
+export const toggle = createAction<boolean>('toggleLoading');
 
 // Slice
 export const loadingSlice = createSlice({

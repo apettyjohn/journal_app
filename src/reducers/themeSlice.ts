@@ -6,7 +6,7 @@ interface themeState {
 
 // Setup
 const initialState: themeState = {value: 'light'};
-export const toggle = createAction<string>('toggle');
+export const toggleTheme = createAction<string>('toggleTheme');
 
 // Slice
 export const themeSlice = createSlice({
@@ -18,15 +18,13 @@ export const themeSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(toggle, (state, { payload }) => {
-            if (payload === 'light' || payload === 'dark') {
-                const appClasses = document.getElementsByTagName("body").item(0)!.classList;
-                if (state.value === 'light') {
-                    appClasses.replace("light-mode", "dark-mode");
-                } else {
-                    appClasses.replace("dark-mode", "light-mode");
-                }
-                state.value = payload;
+        builder.addCase(toggleTheme, (state, { payload }) => {
+            const appClasses = document.getElementsByTagName("body").item(0)!.classList;
+            state.value = payload;
+            if (payload === 'light') {
+                appClasses.replace("dark-mode", "light-mode");
+            } else if (payload === 'dark') {
+                appClasses.replace("light-mode", "dark-mode");
             }
         });
     }

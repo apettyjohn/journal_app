@@ -6,6 +6,7 @@
     --create: #17ce17;
     --delete: #d50000;
     --systemText: #9f9f9f;
+    --accentColor: #24c200;
 
     /* Component Variables */
     --blackWalpha: #00000033;
@@ -57,6 +58,8 @@ a {
 }
 
 #settings-menu *.MuiIconButton-root { padding: 0.2rem; }
+
+input.Mui-disabled { color: var(--systemText) !important; }
 
 .public-DraftStyleDefault-block { margin: 0 !important; }
 

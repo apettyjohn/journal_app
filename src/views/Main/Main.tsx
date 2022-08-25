@@ -6,25 +6,26 @@ import Post from "./Components/Post";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
 import {NewPostPopper, ProfilePopper, SelectDayPopper, SelectYearPopper} from "./Components/Menus";
-import {User} from "../../objects/user";
-import {backDay, backMonth, forwardDay, forwardMonth, select} from "../../reducers/dateSlice";
+import {backDay, backMonth, forwardDay, forwardMonth, selectDate} from "../../reducers/dateSlice";
+import {useNavigate} from "react-router-dom";
 
 function Main() {
-    const user = {id: 1, name: "Adam Pettyjohn"} as User;
-    //const user = useSelector((state: Store) => state.users.user);
-    // const files = useSelector((state: Store) => state.files.files);
-    const files = ["test.json"];
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const today = useSelector((state: Store) => state.date.today);
-    const selectedDate = useSelector((state: Store) => state.date.selected);
+    const store = useSelector((state: Store) => state);
+    const user = store.users.user;
+    const files = store.files.userFiles;
+    const today = store.date.today;
+    const selectedDate = store.date.selected;
     const topCardStyle: React.CSSProperties = {
         display: "flex",
         flexGrow: '1',
         flexDirection: "row",
         justifyContent: "space-evenly",
         alignItems: "center"
-    }
-    const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'}
+    };
+    const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'};
+    const [timer, setTimer] = React.useState<any | null>(null);
     const [newPost, setNewPost] = React.useState<HTMLElement | null>(null);
     const [selectDay, setSelectDay] = React.useState<HTMLElement | null>(null);
     const [selectYear, setSelectYear] = React.useState<HTMLElement | null>(null);
@@ -64,35 +65,49 @@ function Main() {
             }
         }
     }
+    const newPostHandler = (e: React.MouseEvent<HTMLElement>) => {
+        switch (e.detail) {
+            case 1:
+                setTimer(setTimeout(() => {
+                    newPost? setNewPost(null):
+                        setNewPost(document.querySelector("button[data-menuname=NewPost]") as HTMLElement);
+                },300));
+                break;
+            case 2:
+                clearTimeout(timer);
+                navigate("/edit",{state: {date:today,user:user!}});
+        }
+    }
 
     return (
         <div className="view">
             <div style={{display: "flex", justifyContent: "center", flexGrow: '1'}}>
                 <Card style={{maxWidth: '800px', flexGrow: '1', margin: "1em"}}>
                     <CardContent style={topCardStyle}>
-                        <IconButton aria-label="new-entry" style={svgStyle} onClick={toggleMenu}
-                                    data-menuname="NewPost">{(newPost) ? <Clear/> : <Add/>}</IconButton>
-                        <IconButton aria-label="last-month" style={svgStyle}
+                        <IconButton style={svgStyle} onClick={newPostHandler} data-menuname="NewPost">
+                            {(newPost) ? <Clear/> : <Add/>}
+                        </IconButton>
+                        <IconButton style={svgStyle}
                                     onClick={() => dispatch(backMonth())}><SkipPrevious/></IconButton>
-                        <IconButton aria-label="yesterday" style={svgStyle}
+                        <IconButton style={svgStyle}
                                     onClick={() => dispatch(backDay())}><KeyboardArrowLeft/></IconButton>
-                        <Button aria-label="select-date" onMouseEnter={toggleMenu} data-menuname="SelectDay"
-                                onDoubleClick={() => dispatch(select(today))}>
+                        <Button onMouseEnter={toggleMenu} data-menuname="SelectDay"
+                                onDoubleClick={() => dispatch(selectDate(today))}>
                             <Typography variant="h4" style={{textTransform: "none", fontSize: '3em'}}>
                                 {`${selectedDate.monthName} ${selectedDate.day}`}</Typography>
                         </Button>
-                        <IconButton aria-label="tomorrow" style={svgStyle}
+                        <IconButton style={svgStyle}
                                     onClick={() => dispatch(forwardDay())}><KeyboardArrowRight/></IconButton>
-                        <IconButton aria-label="next-month" style={svgStyle}
+                        <IconButton style={svgStyle}
                                     onClick={() => dispatch(forwardMonth())}><SkipNext/></IconButton>
-                        <Button aria-label="select-date" onMouseEnter={toggleMenu} data-menuname="SelectYear">
+                        <Button onMouseEnter={toggleMenu} data-menuname="SelectYear">
                             <Typography variant="h4" style={{
                                 maxWidth: '50px',
                                 wordWrap: "break-word",
                                 textTransform: "none"
                             }}>{selectedDate.year}</Typography>
                         </Button>
-                        {user ? <IconButton aria-label="next-month" onMouseEnter={toggleMenu} data-menuname="Profile">
+                        {user ? <IconButton onMouseEnter={toggleMenu} data-menuname="Profile">
                             <ProfilePic user={user}/>
                         </IconButton> : <div/>}
                     </CardContent>
@@ -100,7 +115,7 @@ function Main() {
             </div>
 
             <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                {files.map((fileName, i) => <Post fileName={fileName} index={i} key={i}></Post>)}
+                {files.map((fileName, i) => <Post fileName={fileName} index={i} key={i} dirName={`${user!.name}-${user!.id}`}></Post>)}
             </div>
 
             <Popper open={Boolean(newPost)} anchorEl={newPost} placement={"bottom"} style={{transition: "none"}}

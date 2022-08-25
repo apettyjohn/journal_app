@@ -32,7 +32,7 @@ function getDate(): DateTime {
 
 // Setup
 const initialState: dateState = {today: getDate(), selected: getDate()};
-export const select = createAction<DateTime>('select');
+export const selectDate = createAction<DateTime>('selectDate');
 export const forwardDay = createAction('forwardDay');
 export const forwardMonth = createAction('forwardMonth');
 export const backDay = createAction('backDay');
@@ -48,7 +48,7 @@ export const dateSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(select, (state, {payload}) => {
+        builder.addCase(selectDate, (state, {payload}) => {
             state.today = getDate();
             state.selected = payload;
         });

@@ -1,13 +1,31 @@
-import {Button, Card, CardActionArea, CardContent, IconButton, Typography} from "@material-ui/core";
+import {Button, Card, CardActionArea, CardContent, IconButton, TextField, Typography} from "@material-ui/core";
 import ColorCircle from "./Components/ColorCircle";
 import ProfilePic from "../Login/Components/ProfilePic";
+import {ArrowBack, Check, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
+import {Link} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {Store} from "../../reducers/reduxStore";
+import {toggleTheme} from "../../reducers/themeSlice";
+import {useState} from "react";
+import {updateUser} from "../../reducers/userSlice";
 import {User} from "../../objects/user";
-import {ArrowBack, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
+import {stringifyDateTime} from "../../objects/dateTime";
 
 function Account() {
+    const dispatch = useDispatch();
+    const store = useSelector((state: Store) => state);
+    const [nameEdit, setNameEdit] = useState(false);
     const defaultColors = ["red", "orange", "yellow", "green", "lightBlue"];
     const labels = ["Back", "Profile", "Preferences", "Logout"];
-    const user = {id: 1, name: "Adam Pettyjohn"} as User;
+    const user = store.users.user;
+    const scrollToProfile = () => {
+        const elem = document.getElementById('account-cards');
+        if (elem) elem.scrollIntoView();
+    }
+    const scrollToPreferences = () => {
+        const elem = document.getElementById('account-preferences');
+        if (elem) elem.scrollIntoView();
+    }
 
     function showLabels() {
         const buttons = document.getElementById("account-side-menu")!.getElementsByClassName("MuiButton-label");
@@ -25,6 +43,7 @@ function Account() {
         }
     }
 
+
     return (
         <div className="view" style={{display: 'flex', flexDirection: 'row'}}>
 
@@ -32,24 +51,24 @@ function Account() {
                 <Card style={{margin: "1em"}}>
                     <CardContent id="account-side-menu" onMouseEnter={showLabels} onMouseLeave={hideLabels}>
                         <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
-                            <Button startIcon={<ArrowBack/>} fullWidth></Button>
+                            <Link to="/main"><Button startIcon={<ArrowBack/>} fullWidth></Button></Link>
                         </div>
                         <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
-                            <Button startIcon={<Person/>} fullWidth></Button>
+                            <Button startIcon={<Person/>} fullWidth onClick={scrollToProfile}></Button>
                         </div>
                         <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
-                            <Button startIcon={<Tune/>} fullWidth></Button>
+                            <Button startIcon={<Tune/>} fullWidth onClick={scrollToPreferences}></Button>
                         </div>
-                        <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                            <Button startIcon={<ExitToApp/>} fullWidth></Button>
+                        <div style={{display: "state={\"profile\"}flex", flexDirection: "row", alignItems: "center"}}>
+                            <Link to="/login"><Button startIcon={<ExitToApp/>} fullWidth></Button></Link>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: "center", flexGrow: '1'}}>
-                <div style={{display: 'flex', flexDirection: 'column', flexGrow: '1', maxWidth: "800px"}}>
-                    <Card style={{overflow: 'visible', margin: "1em"}}>
+                <div style={{display: 'flex', flexDirection: 'column', flexGrow: '1', maxWidth: "800px"}} id={'account-cards'}>
+                    <Card style={{overflow: 'visible', margin: "1em"}} id={'account-profile'}>
                         <CardContent style={{
                             display: "flex",
                             flexDirection: "row",
@@ -63,10 +82,13 @@ function Account() {
                                 flexDirection: "column",
                                 marginRight: '3em'
                             }}>
-                                <ProfilePic size={"large"} user={user}/>
+                                {user ? <ProfilePic size={"large"} user={user}/>: <div/>}
                                 <Button className="systemText"
                                         style={{marginTop: '1em', marginBottom: '1em'}}>Edit</Button>
-                                <Button className="systemText">Delete</Button>
+                                <Button className="systemText" onClick={() => {
+                                    const temp = {...user, imgSrc: undefined} as User;
+                                    dispatch(updateUser(temp));
+                                }}>Delete</Button>
                             </div>
 
                             <div style={{display: "flex", justifyContent: "center", flexDirection: "row", flexGrow: '1'}}>
@@ -76,11 +98,10 @@ function Account() {
                                     flexDirection: "column"
                                 }}>
                                     <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-                                        <Typography style={{whiteSpace: 'nowrap'}}>Name :</Typography>
-                                        <Typography
-                                            style={{marginLeft: '2em', marginRight: '2em'}}>{user.name}</Typography>
-                                        <IconButton aria-label="edit">
-                                            <Edit/>
+                                        <TextField defaultValue={user? user.name:""} variant="filled"
+                                                   style={{textAlign: "center"}} label="Name" disabled={!nameEdit} />
+                                        <IconButton onClick={() => setNameEdit(!nameEdit)} style={{marginLeft: "1em"}}>
+                                            {nameEdit? <Check />:<Edit/>}
                                         </IconButton>
                                     </div>
                                     <div style={{
@@ -90,7 +111,7 @@ function Account() {
                                         paddingTop: '1em',
                                         paddingBottom: '1em'
                                     }}>
-                                        <Typography>234 Posts</Typography>
+                                        <Typography>{`Total Posts:  ${user? user.totalEntries: 0}`}</Typography>
                                     </div>
                                     <div style={{
                                         display: "flex",
@@ -99,26 +120,26 @@ function Account() {
                                         paddingTop: '1em',
                                         paddingBottom: '1em'
                                     }}>
-                                        <Typography>Joined May 6, 1987</Typography>
+                                        <Typography>{user? `Joined:  ${stringifyDateTime(user.joinDate)}`: ""}</Typography>
                                     </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card style={{overflow: 'visible', margin: "1em"}}>
+                    <Card style={{overflow: 'visible', margin: "1em"}} id={'account-preferences'}>
                         <CardContent style={{marginRight: '2em', marginLeft: '2em'}}>
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>System Theme
                                     :</Typography>
                                 <Card className="light-mode">
-                                    <CardActionArea>
+                                    <CardActionArea onClick={() => dispatch(toggleTheme('light'))}>
                                         <CardContent>
                                             <Typography>Light Mode</Typography>
                                         </CardContent>
                                     </CardActionArea>
                                 </Card>
                                 <Card className="dark-mode">
-                                    <CardActionArea>
+                                    <CardActionArea onClick={() => dispatch(toggleTheme('dark'))}>
                                         <CardContent>
                                             <Typography>Dark Mode</Typography>
                                         </CardContent>
@@ -132,7 +153,7 @@ function Account() {
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Accent Color
                                     :</Typography>
                                 {defaultColors.map((color, i) =>
-                                    <ColorCircle color={color} key={i}></ColorCircle>
+                                    <IconButton key={i}><ColorCircle color={color}></ColorCircle></IconButton>
                                 )}
                                 <IconButton aria-label="edit">
                                     <Palette />
@@ -163,6 +184,9 @@ function Account() {
                             </div>
                         </CardContent>
                     </Card>
+                    <div style={{display: "flex", justifyContent: "flex-end", margin: "1em 4em 3em 0"}}>
+                        <Button variant="contained" size="large">Save</Button>
+                    </div>
                 </div>
             </div>
         </div>
