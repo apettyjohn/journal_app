@@ -1,5 +1,5 @@
-import React from "react";
-import {useLocation} from "react-router-dom";
+import React, {useEffect} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
 import {RawDraftContentState} from "draft-js";
 import {Typography} from "@material-ui/core";
 import TextEditor from './Components/DraftJSEditor';
@@ -17,7 +17,11 @@ interface location {
 }
 
 export default function Edit() {
-    const today = useSelector((state: Store) => state.date.today);
+    const navigate = useNavigate();
+    const store = useSelector((state: Store) => state);
+    const today = store.date.today;
+    const user = store.users.user;
+    useEffect(() => {if (!user) navigate('/login');});
     const location = useLocation();
     let editorBlob = location.state as location;
     if (!editorBlob || !editorBlob.date) editorBlob = {date: today} as location;

@@ -14,9 +14,22 @@ interface state {
 
 export default function Post(props: { fileName: string, index: number, dirName: string }) {
     // Styles
-    const cardStyle: CSSProperties = {display: "flex", flexDirection: "row", width: "94%"};
+    const cardStyle: CSSProperties = {display: "flex", flexDirection: "row", flexGrow: "1"};
     const contentStyle: CSSProperties = {display: "flex", flexGrow: "1", overflow: "hidden"};
     const contentDivStyle: CSSProperties = {display: "flex", flexDirection: "column", width: "100%"};
+    const dateCircleStyle: CSSProperties = {
+        height: "50px",
+        width: "50px",
+        borderRadius: "50%",
+        backgroundColor: "#D9D9D9",
+        color: "black",
+        fontWeight: "bold",
+        boxShadow: '0px 2px 3px 0px rgb(0 0 0 / 50%)',
+        display: 'flex',
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: "2em"
+    };
     const skeletonStyle = (props?: CSSProperties): CSSProperties => {
         const defaults = {
             borderRadius: '1em',
@@ -26,7 +39,8 @@ export default function Post(props: { fileName: string, index: number, dirName: 
             backgroundColor: "#9f9f9f"
         };
         return {...defaults, ...props};
-    }
+    };
+
     // State
     const initialState: state = {editorState: {}, html: [], filename: props.fileName};
     const [currentState, setCurrentState] = useState(initialState);
@@ -44,7 +58,6 @@ export default function Post(props: { fileName: string, index: number, dirName: 
             setCurrentState({...currentState,...newState});
         }
     }
-
     function imageCounter(html: Array<string>) {
         const htmlString = html.join("'");
         const count = (htmlString.match(/<img/g) || []).length;
@@ -81,9 +94,19 @@ export default function Post(props: { fileName: string, index: number, dirName: 
         }
     }
 
+    // File info
+    const day = props.fileName.split('_')[1].split('-')[1];
+    const postNum = Number(props.fileName.split('_')[2]);
+
     return (
         <div className="post" data-filepath={`["${props.dirName}","${props.fileName}"]`} data-loaded=""
-             style={{width: "50%", maxWidth: '800px', maxHeight: '200px'}} onClick={checkCache} key={props.index}>
+             id={`post-${props.fileName.split('.')[0]}`} onClick={checkCache} key={props.index}
+             style={{width: "100%", maxWidth: '800px', maxHeight: '200px', display: "flex"}}>
+            <a href={`#post-${props.fileName.split('.')[0]}`} className="post-link">
+            {(postNum === 1)?
+                <div style={dateCircleStyle}>{day}</div>:
+                <div style={{width: "50px", marginRight: "2em"}} />}
+            </a>
             <Card style={cardStyle}>
                 <CardContent style={contentStyle}>
                     {(currentState.html.length < 1) ?

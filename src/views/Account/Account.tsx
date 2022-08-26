@@ -2,22 +2,24 @@ import {Button, Card, CardActionArea, CardContent, IconButton, TextField, Typogr
 import ColorCircle from "./Components/ColorCircle";
 import ProfilePic from "../Login/Components/ProfilePic";
 import {ArrowBack, Check, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
 import {toggleTheme} from "../../reducers/themeSlice";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {updateUser} from "../../reducers/userSlice";
 import {User} from "../../objects/user";
 import {stringifyDateTime} from "../../objects/dateTime";
 
 function Account() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
     const [nameEdit, setNameEdit] = useState(false);
     const defaultColors = ["red", "orange", "yellow", "green", "lightBlue"];
     const labels = ["Back", "Profile", "Preferences", "Logout"];
     const user = store.users.user;
+    useEffect(() => {if (!user) navigate('/login');});
     const scrollToProfile = () => {
         const elem = document.getElementById('account-cards');
         if (elem) elem.scrollIntoView();

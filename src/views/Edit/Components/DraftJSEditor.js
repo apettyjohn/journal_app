@@ -62,6 +62,7 @@ export default class TextEditor extends Component {
             html: document.getElementsByClassName("DraftEditor-root")[0].innerHTML.split('"')}),
             {status: 200, statusText: "ok"});
         await cache.put(url, output);
+        this.state.changed = false;
     };
 
     keyBindingFn = (e) => {
@@ -85,8 +86,10 @@ export default class TextEditor extends Component {
     };
 
     onChange = editorState => {
-        this.setState({editorState: editorState, changed: true});
-        if (debug) this.convertContentToHTML();
+        if (editorState.getLastChangeType()) {
+            this.setState({editorState: editorState, changed: true});
+            if (debug) this.convertContentToHTML();
+        }
     };
     onCheckBoxChange = (e) => {
         const target = e.currentTarget;
@@ -373,7 +376,6 @@ const Delete = (props) => {
         borderRadius: '2em',
         padding: '1em'
     };
-    console.log(JSON.stringify(files));
 
     function handleClose() {
         setOpen(false);

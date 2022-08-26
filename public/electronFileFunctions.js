@@ -4,7 +4,6 @@ const jetpack = require("fs-jetpack");
 const dialog = electron.remote.dialog;
 
 let workingDir = [];
-const loadedFiles = [];
 const cacheName = "journal-app-files";
 const requiredFiles = ["users.json", "preferences.json", "files.json"];
 // console.log(`cache supported: ${'caches' in window}`);
@@ -68,7 +67,7 @@ async function initFiles() {
             let fileList = [];
             const dirList = jetpack.cwd('files').find({directories: true, files: false});
             dirList.forEach((dir) => {
-                if (dir !== "Recently Deleted"){
+                if (!dir.includes("Recently Deleted")){
                     const files = jetpack.cwd(`files/${dir}`).find('.');
                     fileList = fileList.concat(files);
                 }
@@ -147,7 +146,7 @@ async function saveFileDialog() {
 async function writeFile(filePath, data) {
     const path = (filePath[0].includes('\\')) ? filePath[0] : workingDir.concat(filePath).join('\\')
     await jetpack.writeAsync(path, data);
-    console.log(`Saved ${path}`)
+    // console.log(`Saved ${path}`)
 }
 
 async function openFileDialog() {
@@ -193,7 +192,7 @@ async function readFile(filePath, display) {
     // Load file
     const path = (display) ? filePath[0] : workingDir.concat(filePath).join('\\')
     const data = await jetpack.readAsync(path, fileExtension);
-    console.log(`Opened file ${filePath}`);
+    // console.log(`Opened file ${filePath}`);
 
     if (display) {
         const output = document.getElementById("file-output");
@@ -224,18 +223,17 @@ async function checkCachedFile(fileName, filePath = null, file, reCache) {
     const cache = await caches.open(cacheName);
     const url = `http://localhost:3000/files/${fileName}`;
     const response = await cache.match(url);
-    if (response === undefined || !loadedFiles.includes(fileName) || reCache) {
+    if (response === undefined || reCache) {
         let data;
         if (file) data = file; else data = await readFile(filePath, false);
         if (data === undefined){
-            console.log(`failed to load ${fileName}`);
+            // console.log(`failed to load ${fileName}`);
             return;
         }
         let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
         output.url = url;
         await cache.put(url, output);
-        if (!loadedFiles.includes(fileName)) loadedFiles.push(fileName);
-        console.log(`loaded file and cached response for ${fileName}`);
+        // console.log(`loaded file and cached response for ${fileName}`);
     }
 }
 
@@ -252,12 +250,14 @@ async function createUser() {
     let userId = 0;
     let nameInUse = false;
     folders.forEach((folder) => {
-        if (folder.includes(inputText)){
-            console.log("Name already in use");
-            nameInUse = true;
+        if (!folder.includes("Recently Deleted")) {
+            if (folder.includes(inputText)) {
+                console.log("Name already in use");
+                nameInUse = true;
+            }
+            const folderId = Number(folder[folder.length - 1]);
+            if (folderId > userId) userId = folderId;
         }
-        const folderId = Number(folder[folder.length-1]);
-        if (folderId > userId) userId = folderId;
     });
     if (nameInUse) return;
     userId += 1;
@@ -326,7 +326,7 @@ async function savePost() {
     const data = JSON.parse(text);
     const dirName = `${data.user.name}-${data.user.id}`;
     let fileName = data.filename;
-    console.log(fileName);
+    // console.log(fileName);
     if (!fileName) {
         const date = `${data.date.month}-${data.date.day}-${data.date.year}`;
         const fileList = jetpack.cwd(`files/${dirName}`).find('.');

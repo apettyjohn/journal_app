@@ -22,7 +22,7 @@ interface PreferencesJson { preferences: Array<Preference> }
 export default function App() {
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
-    const theme = store.theme.value;
+    const debug = false;
 
     function logState(){
         // console.log(JSON.stringify(users),JSON.stringify(preferences));
@@ -66,25 +66,7 @@ export default function App() {
     return (
         <div id="app" data-loaded="" onClick={logState}>
             <BrowserRouter>
-                <div style={{border: '1px solid'}}>
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <FileModal/>
-                        <Button variant="contained" onClick={() => {
-                            (theme === 'light') ? dispatch(toggleTheme('dark')) : dispatch(toggleTheme('light'));
-                        }}>Change Theme</Button>
-                        <Button variant="contained" onClick={() => {
-                            document.getElementById("file-output")!.innerText = "";}}>
-                            Clear output</Button>
-                        <Button variant="contained" component={Link} to="login">Login</Button>
-                        <Button variant="contained" component={Link} to="account">Account</Button>
-                        <Button variant="contained" component={Link} to="main">Main</Button>
-                        <Button variant="contained" component={Link} to="edit">Edit</Button>
-                    </div>
-                    <div style={{display: 'flex', flexDirection: 'row', marginTop: "1em"}}>
-                        <input id="file-input"/>
-                        <div id="file-output"></div>
-                    </div>
-                </div>
+                {debug? <DebugButtons />:<div />}
                 <Routes>
                     <Route path="/" element={<Login/>}/>
                     <Route path="login" element={<Login/>}/>
@@ -94,4 +76,30 @@ export default function App() {
                 </Routes>
             </BrowserRouter>
         </div>);
+}
+
+function DebugButtons() {
+    const dispatch = useDispatch();
+    const store = useSelector((state: Store) => state);
+    const theme = store.theme.value;
+
+    return (<div style={{border: '1px solid'}}>
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+            <FileModal/>
+            <Button variant="contained" onClick={() => {
+                (theme === 'light') ? dispatch(toggleTheme('dark')) : dispatch(toggleTheme('light'));
+            }}>Change Theme</Button>
+            <Button variant="contained" onClick={() => {
+                document.getElementById("file-output")!.innerText = "";}}>
+                Clear output</Button>
+            <Button variant="contained" component={Link} to="login">Login</Button>
+            <Button variant="contained" component={Link} to="account">Account</Button>
+            <Button variant="contained" component={Link} to="main">Main</Button>
+            <Button variant="contained" component={Link} to="edit">Edit</Button>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row', marginTop: "1em"}}>
+            <input id="file-input"/>
+            <div id="file-output"></div>
+        </div>
+    </div>);
 }

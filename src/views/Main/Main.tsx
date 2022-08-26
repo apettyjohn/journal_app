@@ -8,6 +8,7 @@ import {Store} from "../../reducers/reduxStore";
 import {NewPostPopper, ProfilePopper, SelectDayPopper, SelectYearPopper} from "./Components/Menus";
 import {backDay, backMonth, forwardDay, forwardMonth, selectDate} from "../../reducers/dateSlice";
 import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
 
 function Main() {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ function Main() {
     const files = store.files.userFiles;
     const today = store.date.today;
     const selectedDate = store.date.selected;
+
     const topCardStyle: React.CSSProperties = {
         display: "flex",
         flexGrow: '1',
@@ -25,6 +27,17 @@ function Main() {
         alignItems: "center"
     };
     const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'};
+    const navBarStyle: React.CSSProperties = {
+        position: 'fixed',
+        top: "0",
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        backgroundColor: "rgba(255,255,255,0)",
+        paddingRight: "1em"
+    };
+
+    const [scroll, setScroll] = React.useState<any>(null);
     const [timer, setTimer] = React.useState<any | null>(null);
     const [newPost, setNewPost] = React.useState<HTMLElement | null>(null);
     const [selectDay, setSelectDay] = React.useState<HTMLElement | null>(null);
@@ -79,9 +92,38 @@ function Main() {
         }
     }
 
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (files.length > 0 && scroll !== selectedDate) {
+            let closestDay = files[0];
+            let difference = 50000;
+            const day1 = new Date(selectedDate.year,selectedDate.month-1,selectedDate.day);
+            files.forEach((file: string) => {
+                const dateStr = file.split('_')[1].split('-');
+                let day2 = new Date(Number(dateStr[2]),Number(dateStr[0])-1,Number(dateStr[1]));
+                let diff = Math.abs(day1.getTime() - day2.getTime())/86400000;
+                if (diff < difference) {
+                    difference = diff;
+                    closestDay = file;
+                }
+            });
+            const filepath = closestDay.split('_')[1];
+            const posts = document.querySelectorAll("a.post-link") as NodeListOf<HTMLAnchorElement>;
+            for (let i=0;i<posts.length;i++) {
+                let date = posts[i].href.split('#')[1].split('_')[1];
+                if (filepath === date) {
+                    setScroll(selectedDate);
+                    posts[i].click();
+                    return;
+                }
+            }
+        }
+    }, [user, files, scroll, selectedDate, navigate]);
+
     return (
         <div className="view">
-            <div style={{display: "flex", justifyContent: "center", flexGrow: '1'}}>
+            <div style={navBarStyle}>
                 <Card style={{maxWidth: '800px', flexGrow: '1', margin: "1em"}}>
                     <CardContent style={topCardStyle}>
                         <IconButton style={svgStyle} onClick={newPostHandler} data-menuname="NewPost">
@@ -114,8 +156,18 @@ function Main() {
                 </Card>
             </div>
 
-            <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
-                {files.map((fileName, i) => <Post fileName={fileName} index={i} key={i} dirName={`${user!.name}-${user!.id}`}></Post>)}
+            <div style={{display: "flex", flexDirection: "column", alignItems: "center", marginTop: "180px"}}>
+                {(files.length > 0)?
+                <div style={{display: "flex", flexDirection: "column", width: "70%"}}>
+                    {files.map((fileName, i) =>
+                        <div key={i}>
+                            <Post fileName={fileName} index={i} dirName={`${user!.name}-${user!.id}`}/>
+                            <div style={{height: "1em"}}/>
+                        </div>)}
+                </div>:
+                <div style={{marginTop: "2em"}}>
+                    <Typography style={{color: "var(--systemText)"}}>No posts yet...</Typography>
+                </div>}
             </div>
 
             <Popper open={Boolean(newPost)} anchorEl={newPost} placement={"bottom"} style={{transition: "none"}}
