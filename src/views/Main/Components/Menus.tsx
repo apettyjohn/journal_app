@@ -85,11 +85,19 @@ export function SelectDayPopper() {
         marginTop: "1em",
         marginBottom: "1em"
     };
-    const dayBoxStyle: CSSProperties = {
+    const dayStyle: CSSProperties = {
         height: "20px",
         width: "20px",
         border: "1px solid",
-        borderRadius: "0.5em"
+        borderRadius: "0.5em",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden"
+    };
+    const dayColorBoxStyle: CSSProperties = {
+        height: "inherit",
+        width: "inherit"
     };
 
     return (
@@ -108,19 +116,20 @@ export function SelectDayPopper() {
                 <div style={gridStyle} id="date-grid">
                     {arrayMaker(0, monthStart.weekdayNumber).map((day, i) => <div key={i}/>)}
                     {arrayMaker(1, daysInMonth, true).map((day, i) =>
-                        <div style={thisMonthFiles[day]? {...dayBoxStyle,backgroundColor: "var(--accentColor)",
-                            filter: `opacity(${filterNumber(thisMonthFiles[day])}%)`}: dayBoxStyle}
-                             key={i} data-day={day} onMouseOver={togglePopup} onMouseOut={togglePopup}
-                             onClick={() => dispatch(selectDate(parseDate(day, currentDay.month, currentDay.year)))}/>
+                        <div style={dayStyle} key={i} data-day={day} onMouseOver={togglePopup} onMouseOut={togglePopup}
+                             onClick={() => dispatch(selectDate(parseDate(day, currentDay.month, currentDay.year)))}>
+                            <div style={thisMonthFiles[day]? {...dayColorBoxStyle,backgroundColor: "var(--accentColor)",
+                                filter: `opacity(${filterNumber(thisMonthFiles[day])}%)`}: dayColorBoxStyle} />
+                        </div>
                     )}
                 </div>
                 <div style={{display: "flex", flexGrow: "1", justifyContent: "space-around"}}>
                     <div style={{display: "flex", alignItems: "center"}}>
-                        <div style={{...dayBoxStyle, marginRight: "0.5em"}}/>
+                        <div style={{...dayStyle, marginRight: "0.5em"}}/>
                         <Typography style={{fontSize: "0.8em"}}>Less Posts</Typography>
                     </div>
                     <div style={{display: "flex", alignItems: "center"}}>
-                        <div style={{...dayBoxStyle, marginRight: "0.5em", backgroundColor: "var(--accentColor)"}}/>
+                        <div style={{...dayStyle, marginRight: "0.5em", backgroundColor: "var(--accentColor)"}}/>
                         <Typography style={{fontSize: "0.8em"}}>More Posts</Typography>
                     </div>
                 </div>
@@ -135,7 +144,9 @@ export function SelectDayPopper() {
 
 export function SelectYearPopper() {
     const dispatch = useDispatch();
-    const date = useSelector((state: Store) => state.date.selected);
+    const store = useSelector((state: Store) => state);
+    const today = store.date.today;
+    const date = store.date.selected;
     const [inputYear, setInputYear] = useState<number>(date.year);
 
     return (
@@ -147,7 +158,7 @@ export function SelectYearPopper() {
                                dispatch(selectDate({...date, year: Number(e.target.value)}));
                                setInputYear(Number(e.target.value));
                            }}>
-                    {arrayMaker(1950, date.year, true).map((year, i) =>
+                    {arrayMaker(1950, today.year, true).map((year, i) =>
                         <MenuItem key={i} value={year}>{year}</MenuItem>)}
                 </TextField>
             </CardContent>

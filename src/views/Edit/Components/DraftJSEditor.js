@@ -23,8 +23,6 @@ import {
 } from "@material-ui/icons";
 import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd';
 import {useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import {setAllFiles} from "../../../reducers/fileSlice";
 
 const {hasCommandModifier} = KeyBindingUtil;
 const debug = false;
@@ -362,9 +360,7 @@ const Close = () => {
     return (<Button variant="contained" size="large" onClick={() => navigate('/main')}>Close</Button>);
 }
 const Delete = (props) => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const files = useSelector((state) => state.files.allFiles);
     const [open, setOpen] = React.useState(false);
     const boxStyle = {
         position: 'absolute',
@@ -386,12 +382,10 @@ const Delete = (props) => {
         const url = "http://localhost:3000/deletePost";
         let output = new Response(JSON.stringify(
             {filename: props.filename,
-                directory: `${props.user.name}-${props.user.id}`}),
+                directory: `${props.user.name}-${props.user.id}`,
+                user: props.user}),
             {status: 200, statusText: "ok"});
         await cache.put(url, output);
-        let temp = [...files];
-        temp.splice(files.indexOf(props.filename),1);
-        dispatch(setAllFiles({files: temp,user: props.user}));
     }
 
     return (
@@ -407,7 +401,8 @@ const Delete = (props) => {
                                 onClick={async () => {
                                     if (!Boolean(props.user)) return;
                                     await cachePostToDelete();
-                                    setTimeout(() => navigate('/main'),200);}} style={{width: "50%"}}>Delete
+                                    navigate('/main');
+                                }} style={{width: "50%"}}>Delete
                         </Button>
                     </div>
                 </Box>

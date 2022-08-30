@@ -6,7 +6,6 @@ const dialog = electron.remote.dialog;
 let workingDir = [];
 const cacheName = "journal-app-files";
 const requiredFiles = ["users.json", "preferences.json", "files.json"];
-// console.log(`cache supported: ${'caches' in window}`);
 
 const target = document.querySelector('body');
 const config = {childList: true, subtree: true};
@@ -39,7 +38,6 @@ const openObserver = new MutationObserver(function () {
 const postObserver = new MutationObserver(function () {
     const posts = document.getElementsByClassName("post");
     if (posts.length > 0) {
-        // console.log(`found ${posts.length} posts`);
         for (let i = 0; i < posts.length; i++) {
             if (posts[i].dataset.loaded === "" && posts[i].dataset.filename !== "") {
                 loadPost(posts[i]).then();
@@ -103,15 +101,11 @@ async function saveFileDialog() {
     }
     // Find data to save
     const element = document.getElementById(options.elementId);
-    if (element === null) {
-        console.log("No element id was supplied or no element was found");
-        return;
-    }
+    if (element === null) return;
     if (element.tagName === 'INPUT') {
         if (element.value !== "") {
             options.data = element.value;
         } else {
-            console.log("Input field was empty");
             return;
         }
     } else {
@@ -146,7 +140,6 @@ async function saveFileDialog() {
 async function writeFile(filePath, data) {
     const path = (filePath[0].includes('\\')) ? filePath[0] : workingDir.concat(filePath).join('\\')
     await jetpack.writeAsync(path, data);
-    // console.log(`Saved ${path}`)
 }
 
 async function openFileDialog() {
@@ -167,13 +160,7 @@ async function openFileDialog() {
         });
         try {
             if (!file.canceled) {
-                if (options.directory) {
-                    console.log(jetpack.cwd());
-                    const files = jetpack.find(file.filePaths[0]);
-                    console.log(files);
-                } else {
-                    await readFile(file.filePaths, true);
-                }
+                await readFile(file.filePaths, true);
             }
         } catch (err) {
             console.log(err);
@@ -192,7 +179,6 @@ async function readFile(filePath, display) {
     // Load file
     const path = (display) ? filePath[0] : workingDir.concat(filePath).join('\\')
     const data = await jetpack.readAsync(path, fileExtension);
-    // console.log(`Opened file ${filePath}`);
 
     if (display) {
         const output = document.getElementById("file-output");
@@ -226,14 +212,10 @@ async function checkCachedFile(fileName, filePath = null, file, reCache) {
     if (response === undefined || reCache) {
         let data;
         if (file) data = file; else data = await readFile(filePath, false);
-        if (data === undefined){
-            // console.log(`failed to load ${fileName}`);
-            return;
-        }
+        if (data === undefined) return;
         let output = new Response(JSON.stringify(data), {status: 200, statusText: "ok"});
         output.url = url;
         await cache.put(url, output);
-        // console.log(`loaded file and cached response for ${fileName}`);
     }
 }
 
@@ -314,6 +296,7 @@ async function deleteUser() {
 }
 
 async function savePost() {
+    // Get editor blob from cache
     const cacheName = "journal-app-files";
     const cache = await caches.open(cacheName);
     const url = "http://localhost:3000/editorState";
@@ -324,12 +307,13 @@ async function savePost() {
     }
     const text = await response.text();
     const data = JSON.parse(text);
+
+    // Change file list
     const dirName = `${data.user.name}-${data.user.id}`;
     let fileName = data.filename;
-    // console.log(fileName);
+    const fileList = jetpack.cwd(`files/${dirName}`).find('.');
     if (!fileName) {
         const date = `${data.date.month}-${data.date.day}-${data.date.year}`;
-        const fileList = jetpack.cwd(`files/${dirName}`).find('.');
         let postNumber = 1;
         fileList.forEach((file) => {
             if (file.includes(date)) postNumber += 1;
@@ -342,6 +326,30 @@ async function savePost() {
         await writeFile(["files.json"],allFiles);
         await checkCachedFile("files.json",null,allFiles, true);
     }
+
+    // Change user list
+    let maxEntries = (fileList.length > 0)? 0: 1;
+    let maxEntriesDay = undefined;
+    fileList.forEach((file) => {
+        let entryNum = Number(file.split('_')[2]);
+        if (entryNum > maxEntries) {
+            maxEntries = entryNum;
+            maxEntriesDay = file.split('_')[1];
+        }
+    });
+    if (maxEntriesDay === `${data.date.month}-${data.date.day}-${data.date.year}`) maxEntries += 1;
+    const allUsers = await readFile(["users.json"]);
+    let tempUsers = {...allUsers};
+    [...allUsers.users].forEach((user,i) => {
+        if (user.id === data.user.id && user.name === data.user.name){
+            tempUsers.users[i].totalEntries += 1;
+            tempUsers.users[i].maxEntriesPerDay = maxEntries;
+        }
+    });
+    await writeFile(["users.json"],tempUsers);
+    await checkCachedFile("users.json",null,tempUsers, true);
+
+    // Save post and clear editor blob from cache
     await writeFile([dirName,fileName], data);
     await checkCachedFile(fileName,[dirName,fileName],data, true);
     await cache.delete(url);
@@ -351,6 +359,7 @@ async function savePost() {
 }
 
 async function deletePost() {
+    // get file info from cache
     const cacheName = "journal-app-files";
     const cache = await caches.open(cacheName);
     const baseUrl = "http://localhost:3000/";
@@ -361,13 +370,59 @@ async function deletePost() {
     }
     const text = await response.text();
     const data = JSON.parse(text);
-    console.log(data.directory, data.filename);
 
+    // delete file and remove from cache
     jetpack.cwd(`files/${data.directory}`).remove(data.filename);
     await cache.delete(baseUrl+"files/"+data.filename);
     await cache.delete(baseUrl+"deletePost");
-    const filesList = await readFile(["files.json"]);
-    filesList.files.splice(filesList.files.indexOf(data.filename),1);
+
+    // renumber files on that day
+    const userFiles = jetpack.cwd(`files/${data.directory}`).find('.');
+    const date = data.filename.split('_')[1];
+    let maxEntries = 0;
+    for (const file of [...userFiles]) {
+        let fileArray = file.split('_');
+        let entryNum = Number(fileArray[2]);
+        if (file.includes(date) && entryNum > Number(data.filename.split('_')[2])) {
+            entryNum -= 1;
+            fileArray[2] = entryNum.toString();
+            jetpack.cwd(`files/${data.directory}`).rename(file,fileArray.join('_'));
+            const response = await cache.match(baseUrl+`files/${file}`);
+            await cache.delete(baseUrl+`files/${file}`);
+            await cache.put(baseUrl+`files/${fileArray.join('_')}`,response);
+        }
+        if (entryNum > maxEntries) maxEntries = entryNum;
+    }
+
+    // Change user list
+    const allUsers = await readFile(["users.json"]);
+    let tempUsers = {...allUsers};
+    tempUsers.users.forEach((user,i) => {
+        if (user.id === data.user.id && user.name === data.user.name){
+            tempUsers.users[i].totalEntries -= 1;
+            tempUsers.users[i].maxEntriesPerDay = maxEntries;
+        }
+    });
+    await writeFile(["users.json"],tempUsers);
+    await checkCachedFile("users.json",null,tempUsers, true);
+
+    // reset files list
+    let temp = [];
+    const directories = jetpack.cwd('files').find({directories: true, files: false});
+    directories.forEach((dir) => {
+        if (!dir.includes("Recently Deleted")) {
+            const files = jetpack.cwd(`files/${dir}`).find('.');
+            temp = [...temp,...files];
+        }
+    });
+    const filesList = {files: temp};
     await writeFile(["files.json"],filesList);
     await cache.put(baseUrl+"files/files.json",new Response(JSON.stringify(filesList), {status: 200, statusText: "ok"}));
+    const app = document.getElementById("app");
+    app.dataset.loaded = "";
+    app.click();
+    const postList = document.querySelectorAll("div[data-filepath]");
+    for (let i = 0; i < postList.length; i++) {
+        postList[i].click();
+    }
 }

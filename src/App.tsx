@@ -25,7 +25,6 @@ export default function App() {
     const debug = false;
 
     function logState(){
-        // console.log(JSON.stringify(users),JSON.stringify(preferences));
         const app = document.getElementById("app");
         if (app !== null && app.dataset.loaded === "") {
             app.addEventListener("click",init);
@@ -33,7 +32,6 @@ export default function App() {
         }
     }
     async function init() {
-        // console.log("running app init");
         const cacheName = "journal-app-files";
         const requiredFiles = ["users.json","preferences.json","files.json"];
         const cache = await caches.open(cacheName);
@@ -57,7 +55,6 @@ export default function App() {
                 dispatch(setAllFiles({files: newState.files, user: store.users.user}));
             }
         }
-        // console.log("ran app init");
         const app = document.getElementById("app")!;
         app.removeEventListener("click",init);
         app.dataset.loaded = "true";

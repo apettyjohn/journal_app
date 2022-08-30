@@ -8,14 +8,18 @@ import {Store} from "../../reducers/reduxStore";
 import {NewPostPopper, ProfilePopper, SelectDayPopper, SelectYearPopper} from "./Components/Menus";
 import {backDay, backMonth, forwardDay, forwardMonth, selectDate} from "../../reducers/dateSlice";
 import {useNavigate} from "react-router-dom";
-import {useEffect} from "react";
+import {useEffect, useMemo} from "react";
 
 function Main() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
     const user = store.users.user;
-    const files = store.files.userFiles;
+    const files = useMemo(() => [...store.files.userFiles].sort((a,b) => {
+        const newA = Number(a.split('_')[1].replace(/-/g,'')) - Number(a.split('_')[2]);
+        const newB = Number(b.split('_')[1].replace(/-/g,'')) - Number(b.split('_')[2]);
+        return newB - newA;
+    }),[store.files.userFiles]);
     const today = store.date.today;
     const selectedDate = store.date.selected;
 

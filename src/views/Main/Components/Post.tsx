@@ -107,7 +107,7 @@ export default function Post(props: { fileName: string, index: number, dirName: 
                 <div style={dateCircleStyle}>{day}</div>:
                 <div style={{width: "50px", marginRight: "2em"}} />}
             </a>
-            <Card style={cardStyle}>
+            <Card style={cardStyle} onClick={() => console.log()}>
                 <CardContent style={contentStyle}>
                     {(currentState.html.length < 1) ?
                         <div style={contentDivStyle}>
