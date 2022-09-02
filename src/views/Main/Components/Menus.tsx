@@ -73,7 +73,8 @@ export function SelectDayPopper() {
         setPopup((popup > 0) ? 0 : day);
     };
     const filterNumber = (num: number) => {
-        return Math.round((num*100)/user!.maxEntriesPerDay);
+        if (!user || user.maxEntriesPerDay === 0) return 1;
+        return num/user.maxEntriesPerDay;
     };
 
     const gridStyle: CSSProperties = {
@@ -119,7 +120,7 @@ export function SelectDayPopper() {
                         <div style={dayStyle} key={i} data-day={day} onMouseOver={togglePopup} onMouseOut={togglePopup}
                              onClick={() => dispatch(selectDate(parseDate(day, currentDay.month, currentDay.year)))}>
                             <div style={thisMonthFiles[day]? {...dayColorBoxStyle,backgroundColor: "var(--accentColor)",
-                                filter: `opacity(${filterNumber(thisMonthFiles[day])}%)`}: dayColorBoxStyle} />
+                                filter: `opacity(${filterNumber(thisMonthFiles[day])})`}: dayColorBoxStyle} />
                         </div>
                     )}
                 </div>
@@ -170,8 +171,10 @@ export function ProfilePopper() {
     return (
         <Card>
             <CardContent style={{maxWidth: "200px"}}>
-                <Link to="/account"><Button startIcon={<Person/>} fullWidth>Profile</Button></Link>
-                <Link to="/login"><Button startIcon={<ExitToApp/>} fullWidth>Switch User</Button></Link>
+                <Link to="/account"><Button startIcon={<Person/>} fullWidth><
+                    span style={{color: "var(--text)"}}>Profile</span></Button></Link>
+                <Link to="/login"><Button startIcon={<ExitToApp/>} fullWidth>
+                    <span style={{color: "var(--text)"}}>Switch User</span></Button></Link>
             </CardContent>
         </Card>
     );

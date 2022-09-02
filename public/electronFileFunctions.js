@@ -399,7 +399,7 @@ async function deletePost() {
     let tempUsers = {...allUsers};
     tempUsers.users.forEach((user,i) => {
         if (user.id === data.user.id && user.name === data.user.name){
-            tempUsers.users[i].totalEntries -= 1;
+            (tempUsers.users[i].totalEntries > 0)? tempUsers.users[i].totalEntries -= 1: tempUsers.users[i].totalEntries = 0;
             tempUsers.users[i].maxEntriesPerDay = maxEntries;
         }
     });

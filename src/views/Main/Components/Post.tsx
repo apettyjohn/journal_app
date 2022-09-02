@@ -1,6 +1,6 @@
-import {Card, CardContent, CardMedia} from "@material-ui/core";
+import {Card, CardActionArea, CardContent, CardMedia} from "@material-ui/core";
 import {CSSProperties, useState} from "react";
-import {Link} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {DateTime} from "../../../objects/dateTime";
 import {User} from "../../../objects/user";
 
@@ -9,7 +9,7 @@ interface state {
     html: Array<string>,
     date?: DateTime,
     user?: User,
-    filename: string
+    fileName: string
 }
 
 export default function Post(props: { fileName: string, index: number, dirName: string }) {
@@ -42,7 +42,8 @@ export default function Post(props: { fileName: string, index: number, dirName: 
     };
 
     // State
-    const initialState: state = {editorState: {}, html: [], filename: props.fileName};
+    const navigate = useNavigate();
+    const initialState: state = {editorState: {}, html: [], fileName: props.fileName};
     const [currentState, setCurrentState] = useState(initialState);
     const cacheName = "journal-app-files";
 
@@ -115,9 +116,9 @@ export default function Post(props: { fileName: string, index: number, dirName: 
                             <div style={skeletonStyle()}></div>
                             <div style={skeletonStyle({marginRight: "20%"})}></div>
                         </div> :
-                        <Link to="/edit" state={currentState} style={contentStyle}>
-                            <div dangerouslySetInnerHTML={{__html: currentState.html.join("'")}}></div>
-                        </Link>}
+                        <CardActionArea onClick={() => navigate("/edit",{state: currentState})}>
+                            <div dangerouslySetInnerHTML={{__html: currentState.html.join("'")}} style={contentStyle}></div>
+                        </CardActionArea>}
                 </CardContent>
                 {imageCounter(currentState.html)}
             </Card>

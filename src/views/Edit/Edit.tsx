@@ -13,7 +13,7 @@ interface location {
     html?: Array<string>,
     date?: DateTime,
     user?: User,
-    fileName: string
+    fileName?: string
 }
 
 export default function Edit() {

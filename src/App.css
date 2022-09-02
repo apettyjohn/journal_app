@@ -48,7 +48,7 @@ a {
     margin: 5px;
 }
 
-.MuiIconButton-root.edit-submenu-icon {
+.MuiIconButton-root.edit-submenu-btn {
     color: var(--text) !important;
     width: 40px;
     height: 40px;
@@ -90,6 +90,11 @@ input.Mui-disabled { color: var(--systemText) !important; }
 .DraftEditor-editorContainer { border: none !important; }
 
 div[role="presentation"] { background-color: rgb(0 0 0 / 0%) !important; }
+
+div[role="tooltip"] {
+    transition: none;
+    background-color: rgb(0 0 0 / 0%) !important;
+}
 
 :target { scroll-margin-top: 10rem; }
 

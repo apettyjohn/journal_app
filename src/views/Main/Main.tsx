@@ -1,4 +1,4 @@
-import {Button, Card, CardContent, IconButton, Popper, Typography} from "@material-ui/core";
+import {Button, Card, CardContent, IconButton, Popper, Tooltip, Typography} from "@material-ui/core";
 import {Add, Clear, KeyboardArrowLeft, KeyboardArrowRight, SkipNext, SkipPrevious} from "@material-ui/icons";
 import ProfilePic from "../Login/Components/ProfilePic";
 import * as React from "react";
@@ -130,22 +130,22 @@ function Main() {
             <div style={navBarStyle}>
                 <Card style={{maxWidth: '800px', flexGrow: '1', margin: "1em"}}>
                     <CardContent style={topCardStyle}>
-                        <IconButton style={svgStyle} onClick={newPostHandler} data-menuname="NewPost">
+                        <Tooltip title="New Post"><IconButton style={svgStyle} onClick={newPostHandler} data-menuname="NewPost">
                             {(newPost) ? <Clear/> : <Add/>}
-                        </IconButton>
-                        <IconButton style={svgStyle}
-                                    onClick={() => dispatch(backMonth())}><SkipPrevious/></IconButton>
-                        <IconButton style={svgStyle}
-                                    onClick={() => dispatch(backDay())}><KeyboardArrowLeft/></IconButton>
+                        </IconButton></Tooltip>
+                        <Tooltip title="Previous Month"><IconButton style={svgStyle}
+                                       onClick={() => dispatch(backMonth())}><SkipPrevious/></IconButton></Tooltip>
+                        <Tooltip title="Previous Day"><IconButton style={svgStyle}
+                                       onClick={() => dispatch(backDay())}><KeyboardArrowLeft/></IconButton></Tooltip>
                         <Button onMouseEnter={toggleMenu} data-menuname="SelectDay"
                                 onDoubleClick={() => dispatch(selectDate(today))}>
                             <Typography variant="h4" style={{textTransform: "none", fontSize: '3em'}}>
                                 {`${selectedDate.monthName} ${selectedDate.day}`}</Typography>
                         </Button>
-                        <IconButton style={svgStyle}
-                                    onClick={() => dispatch(forwardDay())}><KeyboardArrowRight/></IconButton>
-                        <IconButton style={svgStyle}
-                                    onClick={() => dispatch(forwardMonth())}><SkipNext/></IconButton>
+                        <Tooltip title="Next Day"><IconButton style={svgStyle}
+                                       onClick={() => dispatch(forwardDay())}><KeyboardArrowRight/></IconButton></Tooltip>
+                        <Tooltip title="Next Month"><IconButton style={svgStyle}
+                                       onClick={() => dispatch(forwardMonth())}><SkipNext/></IconButton></Tooltip>
                         <Button onMouseEnter={toggleMenu} data-menuname="SelectYear">
                             <Typography variant="h4" style={{
                                 maxWidth: '50px',

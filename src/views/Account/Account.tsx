@@ -1,12 +1,12 @@
-import {Button, Card, CardActionArea, CardContent, IconButton, TextField, Typography} from "@material-ui/core";
+import {Button, Card, CardActionArea, CardContent, IconButton, TextField, Tooltip, Typography} from "@material-ui/core";
 import ColorCircle from "./Components/ColorCircle";
 import ProfilePic from "../Login/Components/ProfilePic";
 import {ArrowBack, Check, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
 import {toggleTheme} from "../../reducers/themeSlice";
-import {useEffect, useState} from "react";
+import {CSSProperties, useEffect, useState} from "react";
 import {updateUser} from "../../reducers/userSlice";
 import {User} from "../../objects/user";
 import {stringifyDateTime} from "../../objects/dateTime";
@@ -16,9 +16,18 @@ function Account() {
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
     const [nameEdit, setNameEdit] = useState(false);
+    const [stayLoggedIn, setStayLoggedIn] = useState<Boolean | null>(null);
     const defaultColors = ["red", "orange", "yellow", "green", "lightBlue"];
     const labels = ["Back", "Profile", "Preferences", "Logout"];
     const user = store.users.user;
+    const profileInfoStyle: CSSProperties = {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingTop: '1em',
+        paddingBottom: '1em'
+    };
+
     useEffect(() => {if (!user) navigate('/login');});
     const scrollToProfile = () => {
         const elem = document.getElementById('account-cards');
@@ -52,17 +61,17 @@ function Account() {
             <div style={{display: 'flex', flexDirection: 'column', justifyContent: "center"}}>
                 <Card style={{margin: "1em"}}>
                     <CardContent id="account-side-menu" onMouseEnter={showLabels} onMouseLeave={hideLabels}>
-                        <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
-                            <Link to="/main"><Button startIcon={<ArrowBack/>} fullWidth></Button></Link>
+                        <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
+                            <Button startIcon={<ArrowBack/>} onClick={() => navigate("/main")} fullWidth></Button>
                         </div>
-                        <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
+                        <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
                             <Button startIcon={<Person/>} fullWidth onClick={scrollToProfile}></Button>
                         </div>
-                        <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginBottom: '2em'}}>
+                        <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
                             <Button startIcon={<Tune/>} fullWidth onClick={scrollToPreferences}></Button>
                         </div>
-                        <div style={{display: "state={\"profile\"}flex", flexDirection: "row", alignItems: "center"}}>
-                            <Link to="/login"><Button startIcon={<ExitToApp/>} fullWidth></Button></Link>
+                        <div style={{display: "flex", alignItems: "center"}}>
+                            <Button startIcon={<ExitToApp/>} onClick={() => navigate("/login")} fullWidth></Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -85,12 +94,12 @@ function Account() {
                                 marginRight: '3em'
                             }}>
                                 {user ? <ProfilePic size={"large"} user={user}/>: <div/>}
-                                <Button className="systemText"
-                                        style={{marginTop: '1em', marginBottom: '1em'}}>Edit</Button>
-                                <Button className="systemText" onClick={() => {
+                                <Button style={{marginTop: '1em', marginBottom: '1em'}}>
+                                    <span style={{color: "var(--text)"}}>Edit</span></Button>
+                                <Button disabled={user && !user.imgSrc} onClick={() => {
                                     const temp = {...user, imgSrc: undefined} as User;
                                     dispatch(updateUser(temp));
-                                }}>Delete</Button>
+                                }}><span style={(user && !user.imgSrc)? {}:{color: "var(--text)"}}>Delete</span></Button>
                             </div>
 
                             <div style={{display: "flex", justifyContent: "center", flexDirection: "row", flexGrow: '1'}}>
@@ -102,26 +111,15 @@ function Account() {
                                     <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
                                         <TextField defaultValue={user? user.name:""} variant="filled"
                                                    style={{textAlign: "center"}} label="Name" disabled={!nameEdit} />
-                                        <IconButton onClick={() => setNameEdit(!nameEdit)} style={{marginLeft: "1em"}}>
-                                            {nameEdit? <Check />:<Edit/>}
-                                        </IconButton>
+                                        <Tooltip title={nameEdit ? "Confirm" : "Change Name"}><IconButton onClick={() => setNameEdit(!nameEdit)}
+                                                       style={{marginLeft: "1em"}}>
+                                            {nameEdit ? <Check/> : <Edit/>}
+                                        </IconButton></Tooltip>
                                     </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        paddingTop: '1em',
-                                        paddingBottom: '1em'
-                                    }}>
+                                    <div style={profileInfoStyle}>
                                         <Typography>{`Total Posts:  ${user? user.totalEntries: 0}`}</Typography>
                                     </div>
-                                    <div style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        paddingTop: '1em',
-                                        paddingBottom: '1em'
-                                    }}>
+                                    <div style={profileInfoStyle}>
                                         <Typography>{user? `Joined:  ${stringifyDateTime(user.joinDate)}`: ""}</Typography>
                                     </div>
                                 </div>
@@ -157,9 +155,7 @@ function Account() {
                                 {defaultColors.map((color, i) =>
                                     <IconButton key={i}><ColorCircle color={color}></ColorCircle></IconButton>
                                 )}
-                                <IconButton aria-label="edit">
-                                    <Palette />
-                                </IconButton>
+                                <Tooltip title="New Color"><IconButton aria-label="edit"><Palette/></IconButton></Tooltip>
                             </div>
                             <div style={{
                                 display: "flex",
@@ -169,16 +165,16 @@ function Account() {
                             }}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Stay Logged In
                                     :</Typography>
-                                <Card>
-                                    <CardActionArea>
-                                        <CardContent>
+                                <Card style={{width: "100px", textAlign: "center"}}>
+                                    <CardActionArea onClick={() => setStayLoggedIn(true)}>
+                                        <CardContent style={(stayLoggedIn === true)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> Yes </Typography>
                                         </CardContent>
                                     </CardActionArea>
                                 </Card>
-                                <Card>
-                                    <CardActionArea>
-                                        <CardContent>
+                                <Card style={{width: "100px", textAlign: "center"}}>
+                                    <CardActionArea onClick={() => setStayLoggedIn(false)}>
+                                        <CardContent style={(stayLoggedIn === false)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> No </Typography>
                                         </CardContent>
                                     </CardActionArea>
