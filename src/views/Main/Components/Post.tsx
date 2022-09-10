@@ -15,8 +15,8 @@ interface state {
 export default function Post(props: { fileName: string, index: number, dirName: string }) {
     // Styles
     const cardStyle: CSSProperties = {display: "flex", flexDirection: "row", flexGrow: "1"};
-    const contentStyle: CSSProperties = {display: "flex", flexGrow: "1", overflow: "hidden"};
-    const contentDivStyle: CSSProperties = {display: "flex", flexDirection: "column", width: "100%"};
+    const contentStyle: CSSProperties = {display: "flex", flexGrow: "1", overflow: "hidden", padding: "0px"};
+    const contentDivStyle: CSSProperties = {display: "flex", flexDirection: "column", width: "100%", padding: "10px"};
     const dateCircleStyle: CSSProperties = {
         height: "50px",
         width: "50px",
@@ -109,7 +109,7 @@ export default function Post(props: { fileName: string, index: number, dirName: 
                 <div style={{width: "50px", marginRight: "2em"}} />}
             </a>
             <Card style={cardStyle} onClick={() => console.log()}>
-                <CardContent style={contentStyle}>
+                <CardContent style={contentStyle} className="post-body">
                     {(currentState.html.length < 1) ?
                         <div style={contentDivStyle}>
                             <div style={skeletonStyle({height: "2em", marginRight: "40%"})}></div>

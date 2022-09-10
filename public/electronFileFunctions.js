@@ -302,16 +302,17 @@ async function savePost() {
     const url = "http://localhost:3000/editorState";
     const response = await cache.match(url);
     if (response === undefined) {
-        setTimeout(() => savePost(),200);
+        setTimeout(() => savePost(),100);
         return;
     }
     const text = await response.text();
     const data = JSON.parse(text);
 
+
     // Change file list
     const dirName = `${data.user.name}-${data.user.id}`;
-    let fileName = data.filename;
     const fileList = jetpack.cwd(`files/${dirName}`).find('.');
+    let fileName = data.fileName;
     if (!fileName) {
         const date = `${data.date.month}-${data.date.day}-${data.date.year}`;
         let postNumber = 1;
@@ -350,9 +351,12 @@ async function savePost() {
     await checkCachedFile("users.json",null,tempUsers, true);
 
     // Save post and clear editor blob from cache
-    await writeFile([dirName,fileName], data);
-    await checkCachedFile(fileName,[dirName,fileName],data, true);
+    const output = {editorState: data.editorState, html: data.html, date: data.date, user: data.user};
+    await writeFile([dirName,fileName], output);
+    await checkCachedFile(fileName,[dirName,fileName],output, true);
     await cache.delete(url);
+    const editor = document.getElementById("editor");
+    editor.dataset.file = fileName;
     const app = document.getElementById("app");
     app.dataset.loaded = "";
     app.click();

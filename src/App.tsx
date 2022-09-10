@@ -1,5 +1,5 @@
-import React from 'react';
-import {BrowserRouter, Link, Route, Routes} from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {BrowserRouter, Link, Route, Routes, useLocation, useNavigate} from 'react-router-dom';
 import './App.css';
 import Account from "./views/Account/Account";
 import Edit from "./views/Edit/Edit";
@@ -15,6 +15,7 @@ import {Preference} from "./objects/preference";
 import {setPreferences} from "./reducers/preferenceSlice";
 import {updateUsers} from "./reducers/userSlice";
 import {setAllFiles} from "./reducers/fileSlice";
+import {EditorProps} from "./objects/editorProps";
 
 interface UsersJson { users: Array<User> }
 interface PreferencesJson { preferences: Array<Preference> }
@@ -70,9 +71,22 @@ export default function App() {
                     <Route path="account" element={<Account/>}/>
                     <Route path="main" element={<Main/>}/>
                     <Route path="edit" element={<Edit/>}/>
+                    <Route path="blank" element={<Blank />}/>
                 </Routes>
             </BrowserRouter>
         </div>);
+}
+
+function Blank() {
+    interface Props {
+        route: string,
+        editorProps?: EditorProps
+    }
+    const navigate = useNavigate();
+    const location = useLocation();
+    let props = location.state as Props;
+    useEffect(() => navigate(props.route,{state: props.editorProps}));
+    return (<div />);
 }
 
 function DebugButtons() {
