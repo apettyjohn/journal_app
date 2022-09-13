@@ -1,6 +1,6 @@
 export interface Preference {
-    userId: number,
-    theme?: string,
-    accentColor?: string,
-    stayLoggedIn?: boolean
+    id: number,
+    theme: string,
+    accentColor: string,
+    stayLoggedIn: boolean
 }

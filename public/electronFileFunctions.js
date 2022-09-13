@@ -76,7 +76,11 @@ async function initFiles() {
             try {
                 file = await readFile([filename]);
             } catch {
-                file = JSON.parse(`{"${name}":[]}`);
+                if (name === "preferences") {
+                    file = {lastLoggedIn: null, users: []};
+                } else {
+                    file = JSON.parse(`{"${name}":[]}`);
+                }
                 await writeFile([filename], file);
             }
         }
@@ -220,6 +224,7 @@ async function checkCachedFile(fileName, filePath = null, file, reCache) {
 }
 
 async function createUser() {
+    // Get name from input field
     const inputName = document.getElementById(this.dataset.elementid);
     let inputText;
     if (inputName === null) {
@@ -228,6 +233,8 @@ async function createUser() {
     }
     if (inputName.value !== "") inputText = inputName.value;
     else return;
+
+    // Check in folders if name in use and get the largest user id
     const folders = jetpack.cwd('files').find({directories: true, files: false});
     let userId = 0;
     let nameInUse = false;
@@ -243,7 +250,9 @@ async function createUser() {
     });
     if (nameInUse) return;
     userId += 1;
-    const d = new Date()
+
+    // Build user object
+    const d = new Date();
     const dateString = d.toLocaleString().split(' ');
     const date = dateString[0].split('/');
     const time = dateString[1].split(':');
@@ -251,17 +260,28 @@ async function createUser() {
             {day: Number(date[1]),month:Number(date[0]),year:Number(date[2].slice(0,4)),weekdayNumber: d.getDay(),
             weekdayName: d.toDateString().split(' ')[0], monthName: d.toDateString().split(' ')[1],
             time: {hour:Number(time[0]),minute:Number(time[1]),second: Number(time[2]), amOrPm: dateString[2]}}};
+
+    // Save user object in file and cache
     let usersList = await readFile(["users.json"]);
     usersList.users.push(user);
     jetpack.cwd('files').dir(`${inputText}-${userId}`);
     await writeFile(["users.json"],usersList);
     await checkCachedFile("users.json", null, null, true);
+
+    // Save default preferences for user in file and cache
+    let preferences = await readFile(["preferences.json"]);
+    preferences.users.push({id:userId, stayLoggedIn:false, accentColor: "#24c200", theme: "light"});
+    await writeFile(["preferences.json"],preferences);
+    await checkCachedFile("preferences.json", null, null, true);
+
+    // Refresh redux store
     const app = document.getElementById("app");
     app.dataset.loaded = "";
     app.click();
 }
 
 async function deleteUser() {
+    // Get user info
     const userText = document.getElementById(this.dataset.elementid);
     if (userText === null) {
         console.log("No element id was supplied or no element was found");
@@ -269,9 +289,11 @@ async function deleteUser() {
     }
     let userId;
     const userName = userText.textContent;
-    let deleted = -1;
     if (userText.dataset.key) userId = Number(userText.dataset.key); else return;
+
+    // Delete user from user list
     let usersList = await readFile(["users.json"]);
+    let deleted = -1;
     usersList.users.forEach((user,i) => {
         if (user.id === userId && user.name === userName) {
             deleted = i;
@@ -283,11 +305,26 @@ async function deleteUser() {
     } else {
         usersList.users.splice(deleted,1);
     }
+
+    // Delete preferences for user in file and cache
+    let preferences = await readFile(["preferences.json"]);
+    deleted = -1;
+    preferences.users.forEach((user,i) => {
+        if (user.id === userId) deleted = i;
+    });
+    if (deleted < 0) return;
+    else preferences.users.splice(deleted,1);
+    await writeFile(["preferences.json"],preferences);
+    await checkCachedFile("preferences.json", null, null, true);
+
+    // Move user files to recently deleted
     jetpack.cwd('files').dir("Recently Deleted").dir(`${userName}-${userId}`);
     const files = jetpack.cwd(`files/${userName}-${userId}`).find('.');
     files.forEach((file) => jetpack.cwd(`files/${userName}-${userId}`)
         .copy(file,`../Recently Deleted/${file}`,{overwrite: true}));
-    jetpack.cwd('files').remove(`${userName}-${userId}`)
+    jetpack.cwd('files').remove(`${userName}-${userId}`);
+
+    // Save user list, recache, and refresh store
     await writeFile(["users.json"],usersList);
     await checkCachedFile("users.json", null, null, true);
     const app = document.getElementById("app");

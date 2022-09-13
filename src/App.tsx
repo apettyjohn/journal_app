@@ -18,20 +18,13 @@ import {setAllFiles} from "./reducers/fileSlice";
 import {EditorProps} from "./objects/editorProps";
 
 interface UsersJson { users: Array<User> }
-interface PreferencesJson { preferences: Array<Preference> }
+interface PreferencesJson { lastLoggedIn: number | null, users: Array<Preference> }
 
 export default function App() {
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
     const debug = false;
 
-    function logState(){
-        const app = document.getElementById("app");
-        if (app !== null && app.dataset.loaded === "") {
-            app.addEventListener("click",init);
-            app.click();
-        }
-    }
     async function init() {
         const cacheName = "journal-app-files";
         const requiredFiles = ["users.json","preferences.json","files.json"];
@@ -50,19 +43,19 @@ export default function App() {
                 dispatch(updateUsers(newState.users));
             } else if (name === "preferences") {
                 const newState = JSON.parse(data) as PreferencesJson;
-                dispatch(setPreferences(newState.preferences));
+                dispatch(setPreferences(newState));
             } else if (name === "files") {
                 const newState = JSON.parse(data) as {files: Array<string>};
                 dispatch(setAllFiles({files: newState.files, user: store.users.user}));
             }
         }
         const app = document.getElementById("app")!;
-        app.removeEventListener("click",init);
         app.dataset.loaded = "true";
     }
 
     return (
-        <div id="app" data-loaded="" onClick={logState}>
+        <div id="app" data-loaded=""
+             onClick={(e) => { if (e.currentTarget.dataset.loaded === "") init().then(); }}>
             <BrowserRouter>
                 {debug? <DebugButtons />:<div />}
                 <Routes>

@@ -1,7 +1,7 @@
 import {Button, Card, CardActionArea, CardContent, IconButton, TextField, Tooltip, Typography} from "@material-ui/core";
 import ColorCircle from "./Components/ColorCircle";
 import ProfilePic from "../Login/Components/ProfilePic";
-import {ArrowBack, Check, Edit, ExitToApp, Palette, Person, Tune} from "@material-ui/icons";
+import {ArrowBack, Check, Edit, ExitToApp, Palette} from "@material-ui/icons";
 import {useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
@@ -10,16 +10,25 @@ import {CSSProperties, useEffect, useState} from "react";
 import {updateUser} from "../../reducers/userSlice";
 import {User} from "../../objects/user";
 import {stringifyDateTime} from "../../objects/dateTime";
+import { SliderPicker } from 'react-color';
+import {Preference} from "../../objects/preference";
 
 function Account() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
-    const [nameEdit, setNameEdit] = useState(false);
-    const [stayLoggedIn, setStayLoggedIn] = useState<Boolean | null>(null);
-    const defaultColors = ["red", "orange", "yellow", "green", "lightBlue"];
-    const labels = ["Back", "Profile", "Preferences", "Logout"];
     const user = store.users.user;
+    if (!user) navigate("/main");
+    let preferences: Preference = {id: user!.id, theme: "light", accentColor: "#fff", stayLoggedIn: false};
+    store.preferences.users.forEach((item) => {
+        if (item.id === user!.id) preferences = item;
+    });
+    const [showSlider, setShowSlider] = useState(false);
+    const [accentColor, setAccentColor] = useState<string>(preferences.accentColor);
+    const [nameEdit, setNameEdit] = useState(false);
+    const [stayLoggedIn, setStayLoggedIn] = useState<boolean>(preferences.stayLoggedIn);
+    const [colorCircles, setColorCircles] = useState(["#ff0000", "#ff8c00", "#1e90ff", "#ffd700"]);
+    const labels = ["Back", "Logout"];
     const profileInfoStyle: CSSProperties = {
         display: "flex",
         flexDirection: "row",
@@ -29,14 +38,6 @@ function Account() {
     };
 
     useEffect(() => {if (!user) navigate('/login');});
-    const scrollToProfile = () => {
-        const elem = document.getElementById('account-cards');
-        if (elem) elem.scrollIntoView();
-    }
-    const scrollToPreferences = () => {
-        const elem = document.getElementById('account-preferences');
-        if (elem) elem.scrollIntoView();
-    }
 
     function showLabels() {
         const buttons = document.getElementById("account-side-menu")!.getElementsByClassName("MuiButton-label");
@@ -63,12 +64,6 @@ function Account() {
                     <CardContent id="account-side-menu" onMouseEnter={showLabels} onMouseLeave={hideLabels}>
                         <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
                             <Button startIcon={<ArrowBack/>} onClick={() => navigate("/main")} fullWidth></Button>
-                        </div>
-                        <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
-                            <Button startIcon={<Person/>} fullWidth onClick={scrollToProfile}></Button>
-                        </div>
-                        <div style={{display: "flex", alignItems: "center", marginBottom: '2em'}}>
-                            <Button startIcon={<Tune/>} fullWidth onClick={scrollToPreferences}></Button>
                         </div>
                         <div style={{display: "flex", alignItems: "center"}}>
                             <Button startIcon={<ExitToApp/>} onClick={() => navigate("/login")} fullWidth></Button>
@@ -127,7 +122,7 @@ function Account() {
                         </CardContent>
                     </Card>
                     <Card style={{overflow: 'visible', margin: "1em"}} id={'account-preferences'}>
-                        <CardContent style={{marginRight: '2em', marginLeft: '2em'}}>
+                        <CardContent style={{marginRight: '1em', marginLeft: '1em'}}>
                             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>System Theme
                                     :</Typography>
@@ -150,31 +145,41 @@ function Account() {
                                 display: "flex", justifyContent: "space-between", alignItems: "center",
                                 marginTop: '2em', marginBottom: '2em'
                             }}>
-                                <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Accent Color
-                                    :</Typography>
-                                {defaultColors.map((color, i) =>
-                                    <IconButton key={i}><ColorCircle color={color}></ColorCircle></IconButton>
-                                )}
-                                <Tooltip title="New Color"><IconButton aria-label="edit"><Palette/></IconButton></Tooltip>
+                                <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Accent Color :</Typography>
+                                <Tooltip title="New Color">
+                                    <IconButton aria-label="edit" onClick={() => setShowSlider(!showSlider)}><Palette/></IconButton>
+                                </Tooltip>
+                                {[accentColor,...colorCircles].map((color, i) =>
+                                    <IconButton key={i} data-color={color} onClick={(e) => setAccentColor(e.currentTarget.dataset.color!)}>
+                                        <ColorCircle color={color} />
+                                    </IconButton>)}
                             </div>
+                            {showSlider? <div style={{marginBottom: "2.5em"}}>
+                                <SliderPicker color={accentColor} onChangeComplete={(color) => {
+                                    let temp = [...colorCircles];
+                                    temp.pop();
+                                    temp.splice(0,0,accentColor);
+                                    setColorCircles(temp);
+                                    setAccentColor(color.hex);
+                                }}/>
+                            </div>: <div />}
                             <div style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
                                 paddingRight: '3em'
                             }}>
-                                <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Stay Logged In
-                                    :</Typography>
+                                <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Stay Logged In :</Typography>
                                 <Card style={{width: "100px", textAlign: "center"}}>
                                     <CardActionArea onClick={() => setStayLoggedIn(true)}>
-                                        <CardContent style={(stayLoggedIn === true)? {backgroundColor: "var(--systemText)"}: {}}>
+                                        <CardContent style={(stayLoggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> Yes </Typography>
                                         </CardContent>
                                     </CardActionArea>
                                 </Card>
                                 <Card style={{width: "100px", textAlign: "center"}}>
                                     <CardActionArea onClick={() => setStayLoggedIn(false)}>
-                                        <CardContent style={(stayLoggedIn === false)? {backgroundColor: "var(--systemText)"}: {}}>
+                                        <CardContent style={(!stayLoggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> No </Typography>
                                         </CardContent>
                                     </CardActionArea>

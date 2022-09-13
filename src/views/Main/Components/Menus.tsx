@@ -6,7 +6,8 @@ import {Store} from "../../../reducers/reduxStore";
 import {arrayMaker, monthDays, monthNames, parseDate, weekDaysShort} from "../../../objects/dateTime";
 import {ExitToApp, Person} from "@material-ui/icons";
 import {selectDate} from "../../../reducers/dateSlice";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {changeLastLoggedIn} from "../../../reducers/preferenceSlice";
 
 export function NewPostPopper() {
     const navigate = useNavigate();
@@ -68,15 +69,6 @@ export function SelectDayPopper() {
         }
     });
 
-    const togglePopup = (e: React.MouseEvent<HTMLElement>) => {
-        const day = Number(e.currentTarget.dataset.day);
-        setPopup((popup > 0) ? 0 : day);
-    };
-    const filterNumber = (num: number) => {
-        if (!user || user.maxEntriesPerDay === 0) return 1;
-        return num/user.maxEntriesPerDay;
-    };
-
     const gridStyle: CSSProperties = {
         display: "grid",
         gridTemplateColumns: "repeat(7,1fr)",
@@ -100,6 +92,15 @@ export function SelectDayPopper() {
         height: "inherit",
         width: "inherit"
     };
+
+    function togglePopup (e: React.MouseEvent<HTMLElement>) {
+        const day = Number(e.currentTarget.dataset.day);
+        setPopup((popup > 0) ? 0 : day);
+    }
+    function filterNumber (num: number) {
+        if (!user || user.maxEntriesPerDay === 0) return 1;
+        return num/user.maxEntriesPerDay;
+    }
 
     return (
         <Card>
@@ -168,13 +169,19 @@ export function SelectYearPopper() {
 }
 
 export function ProfilePopper() {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     return (
         <Card>
             <CardContent style={{maxWidth: "200px"}}>
-                <Link to="/account"><Button startIcon={<Person/>} fullWidth><
-                    span style={{color: "var(--text)"}}>Profile</span></Button></Link>
-                <Link to="/login"><Button startIcon={<ExitToApp/>} fullWidth>
-                    <span style={{color: "var(--text)"}}>Switch User</span></Button></Link>
+                <Button startIcon={<Person/>} onClick={() => navigate("/account")} fullWidth>
+                    <span style={{color: "var(--text)"}}>Profile</span>
+                </Button>
+                <Button startIcon={<ExitToApp/>}
+                        onClick={() => { dispatch(changeLastLoggedIn(null)); navigate("/login"); }} fullWidth>
+                    <span style={{color: "var(--text)"}}>Switch User</span>
+                </Button>
             </CardContent>
         </Card>
     );

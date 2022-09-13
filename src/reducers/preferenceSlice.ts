@@ -2,14 +2,21 @@ import {createAction, createSlice} from "@reduxjs/toolkit";
 import {Preference} from "../objects/preference";
 
 interface preferenceState {
-    preferences: Array<Preference>
+    lastLoggedIn: number | null,
+    users: Array<Preference>
+}
+interface preferenceChange {
+    id: number,
+    theme?: string,
+    accentColor?: string,
+    stayLoggedIn?: boolean
 }
 
 // Setup
-const initialState: preferenceState = { preferences: [] };
-export const add = createAction<Preference>('addPreference');
-export const remove = createAction<Preference>('removePreference');
-export const setPreferences = createAction<Array<Preference>>('setPreferences');
+const initialState: preferenceState = { lastLoggedIn: null, users: [] };
+export const changePreference = createAction<preferenceChange>('changePreference');
+export const setPreferences = createAction<preferenceState>('setPreferences');
+export const changeLastLoggedIn = createAction<number | null>('changeLastLoggedIn');
 
 // Slice
 export const preferenceSlice = createSlice({
@@ -21,17 +28,21 @@ export const preferenceSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(add, (state, { payload }) => {
-            state.preferences.push(payload);
-        });
-        builder.addCase(remove, (state, { payload }) => {
-            state.preferences.splice(state.preferences.indexOf(payload),1);
-        });
         builder.addCase(setPreferences, (state, { payload }) => {
-            state.preferences = payload;
+            state.users = payload.users;
+            state.lastLoggedIn = payload.lastLoggedIn;
+        });
+        builder.addCase(changePreference, (state, { payload }) => {
+            let index = -1;
+            state.users.forEach((user,i) => {
+                if (user.id === payload.id) index = i;
+            });
+            if (index >= 0) state.users[index] = {...state.users[index],...payload};
+        });
+        builder.addCase(changeLastLoggedIn, (state, { payload }) => {
+            state.lastLoggedIn = payload;
         });
     }
 });
-export type preferenceSliceType = ReturnType<typeof preferenceSlice.getInitialState>;
 export const { reset } = preferenceSlice.actions;
 export default preferenceSlice.reducer;

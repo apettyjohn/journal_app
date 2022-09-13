@@ -9,6 +9,8 @@ import {NewPostPopper, ProfilePopper, SelectDayPopper, SelectYearPopper} from ".
 import {backDay, backMonth, forwardDay, forwardMonth, selectDate} from "../../reducers/dateSlice";
 import {useNavigate} from "react-router-dom";
 import {useEffect, useMemo} from "react";
+import {Preference} from "../../objects/preference";
+import {toggleTheme} from "../../reducers/themeSlice";
 
 function Main() {
     const navigate = useNavigate();
@@ -22,7 +24,12 @@ function Main() {
     }),[store.files.userFiles]);
     const today = store.date.today;
     const selectedDate = store.date.selected;
+    let preferences: Preference = {id: user!.id, theme: "light", accentColor: "#fff", stayLoggedIn: false};
+    store.preferences.users.forEach((item) => {
+        if (item.id === user!.id) preferences = item;
+    });
 
+    const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'};
     const topCardStyle: React.CSSProperties = {
         display: "flex",
         flexGrow: '1',
@@ -30,7 +37,6 @@ function Main() {
         justifyContent: "space-evenly",
         alignItems: "center"
     };
-    const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'};
     const navBarStyle: React.CSSProperties = {
         position: 'fixed',
         top: "0",
@@ -47,7 +53,8 @@ function Main() {
     const [selectDay, setSelectDay] = React.useState<HTMLElement | null>(null);
     const [selectYear, setSelectYear] = React.useState<HTMLElement | null>(null);
     const [profile, setProfile] = React.useState<HTMLElement | null>(null);
-    const toggleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    
+    function toggleMenu (event: React.MouseEvent<HTMLElement>) {
         const element = event.currentTarget;
         const menuName = element.dataset.menuname;
         if (menuName) {
@@ -82,7 +89,7 @@ function Main() {
             }
         }
     }
-    const newPostHandler = (e: React.MouseEvent<HTMLElement>) => {
+    function newPostHandler (e: React.MouseEvent<HTMLElement>) {
         switch (e.detail) {
             case 1:
                 setTimer(setTimeout(() => {
@@ -122,8 +129,10 @@ function Main() {
                     return;
                 }
             }
+        } else if (store.theme.value !== preferences.theme) {
+            dispatch(toggleTheme(preferences.theme));
         }
-    }, [user, files, scroll, selectedDate, navigate]);
+    }, [user, files, scroll, selectedDate, navigate, store.theme.value, preferences.theme, dispatch]);
 
     return (
         <div className="view">

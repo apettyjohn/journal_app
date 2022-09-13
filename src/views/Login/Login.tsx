@@ -14,42 +14,19 @@ import ProfilePic from "./Components/ProfilePic";
 import {useDispatch, useSelector} from "react-redux";
 import {Store} from "../../reducers/reduxStore";
 import {RemoveCircle} from "@material-ui/icons";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {selectUser} from "../../reducers/userSlice";
+import {useEffect} from "react";
+import {changeLastLoggedIn} from "../../reducers/preferenceSlice";
 
-function Login() {
-    const findUserCards = () => {
-        const list = document.querySelectorAll("div#login div.MuiCardContent-root>div") as NodeListOf<HTMLElement>
-        return (list.length > 0)? list : null;
-    }
-
+export default function Login() {
     const dispatch = useDispatch();
-    const users = useSelector((state: Store) => state.users.users);
+    const navigate = useNavigate();
+    const store = useSelector((state: Store) => state);
+    const users = store.users.users;
+    const preferences = store.preferences;
     const [createModal, setCreateModal] = React.useState<HTMLElement | null>(null);
     const [deleteModal, setDeleteModal] = React.useState<NodeListOf<HTMLElement> | null>(findUserCards());
-    const toggleCreateModal = (event: React.MouseEvent<HTMLElement>) => {
-        if (createModal) setCreateModal(null);
-        else setCreateModal(event.currentTarget);
-    }
-    const toggleDeleteModal = () => {
-        if (deleteModal) setDeleteModal(null);
-        else setDeleteModal(findUserCards());
-    }
-    const setUser = (e: React.MouseEvent<HTMLElement>) => {
-        const elem = e.currentTarget.querySelector("*[data-key]")! as HTMLElement;
-        const id = Number(elem.dataset.key);
-        const name = elem.textContent;
-        users.forEach((user,i) => {
-            if (user.id === id && user.name === name) {
-                dispatch(selectUser(i));
-                const app = document.getElementById("app")!;
-                app.dataset.loaded = "";
-                app.click();
-                return;
-            }
-        });
-    }
-
     const headCardStyle: React.CSSProperties = {display: 'flex', flexDirection: "row-reverse"};
     const bodyCardStyle: React.CSSProperties = {maxWidth: '20%', textAlign: "center", margin: "1em"}
     const divStyles: React.CSSProperties = {
@@ -62,6 +39,52 @@ function Login() {
         justifyContent: "center",
         paddingTop: '10%',
     };
+
+    function findUserCards () {
+        const list = document.querySelectorAll("div#login div.MuiCardContent-root>div") as NodeListOf<HTMLElement>
+        return (list.length > 0)? list : null;
+    }
+    function toggleCreateModal (event: React.MouseEvent<HTMLElement>) {
+        if (createModal) setCreateModal(null);
+        else setCreateModal(event.currentTarget);
+    }
+    function toggleDeleteModal () {
+        if (deleteModal) setDeleteModal(null);
+        else setDeleteModal(findUserCards());
+    }
+    function setUser (e: React.MouseEvent<HTMLElement>) {
+        const elem = e.currentTarget.querySelector("*[data-key]")! as HTMLElement;
+        const id = Number(elem.dataset.key);
+        const name = elem.textContent;
+        users.forEach((user,i) => {
+            if (user.id === id && user.name === name) {
+                dispatch(selectUser(i));
+                dispatch(changeLastLoggedIn(id));
+                return;
+            }
+        });
+    }
+
+    useEffect(() => {
+        if (preferences.lastLoggedIn) {
+            let temp = false;
+            preferences.users.forEach((user) => {
+                if (user.id === preferences.lastLoggedIn) {
+                    temp = user.stayLoggedIn;
+                    return;
+                }
+            });
+            if (temp) {
+                users.forEach((user,i) => {
+                    if (user.id === preferences.lastLoggedIn) {
+                        dispatch(selectUser(i));
+                        navigate("/main");
+                        return;
+                    }
+                });
+            }
+        }
+    }, [dispatch, navigate, preferences.lastLoggedIn, preferences.users, users]);
 
     return (<div className="view" id="login">
         <div style={{display: "flex", justifyContent: "center", flexGrow: '1'}}>
@@ -120,5 +143,3 @@ function Login() {
         </Popover>
     </div>);
 }
-
-export default Login;
