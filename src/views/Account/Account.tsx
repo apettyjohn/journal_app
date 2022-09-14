@@ -13,20 +13,16 @@ import {stringifyDateTime} from "../../objects/dateTime";
 import { SliderPicker } from 'react-color';
 import {Preference} from "../../objects/preference";
 
-function Account() {
+export default function Account() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const store = useSelector((state: Store) => state);
     const user = store.users.user;
-    if (!user) navigate("/main");
-    let preferences: Preference = {id: user!.id, theme: "light", accentColor: "#fff", stayLoggedIn: false};
-    store.preferences.users.forEach((item) => {
-        if (item.id === user!.id) preferences = item;
-    });
+    const [preferences, setPreferences] = useState<Preference>({id: 0, theme: "light", accentColor: "#06b200", stayLoggedIn: false});
     const [showSlider, setShowSlider] = useState(false);
-    const [accentColor, setAccentColor] = useState<string>(preferences.accentColor);
+    const [color, setColor] = useState<string>(preferences.accentColor);
     const [nameEdit, setNameEdit] = useState(false);
-    const [stayLoggedIn, setStayLoggedIn] = useState<boolean>(preferences.stayLoggedIn);
+    const [loggedIn, setLoggedIn] = useState<boolean>(preferences.stayLoggedIn);
     const [colorCircles, setColorCircles] = useState(["#ff0000", "#ff8c00", "#1e90ff", "#ffd700"]);
     const labels = ["Back", "Logout"];
     const profileInfoStyle: CSSProperties = {
@@ -37,7 +33,19 @@ function Account() {
         paddingBottom: '1em'
     };
 
-    useEffect(() => {if (!user) navigate('/login');});
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        } else if (preferences.id === 0) {
+            store.preferences.users.forEach((item) => {
+                if (item.id === user!.id) {
+                    setPreferences(item);
+                    setColor(item.accentColor);
+                    setLoggedIn(item.stayLoggedIn);
+                }
+            });
+        }
+    });
 
     function showLabels() {
         const buttons = document.getElementById("account-side-menu")!.getElementsByClassName("MuiButton-label");
@@ -54,7 +62,16 @@ function Account() {
             buttons[i].lastChild!.remove()
         }
     }
-
+    async function cacheState() {
+        if (!user) return;
+        const cacheName = "journal-app-files";
+        const cache = await caches.open(cacheName);
+        const url = "http://localhost:3000/preferenceState";
+        let output = new Response(JSON.stringify(
+            {preferences: {id: preferences.id ,theme: store.theme.value, accentColor: color, stayLoggedIn: loggedIn}}),
+            {status: 200, statusText: "ok"});
+        await cache.put(url, output);
+    }
 
     return (
         <div className="view" style={{display: 'flex', flexDirection: 'row'}}>
@@ -149,18 +166,18 @@ function Account() {
                                 <Tooltip title="New Color">
                                     <IconButton aria-label="edit" onClick={() => setShowSlider(!showSlider)}><Palette/></IconButton>
                                 </Tooltip>
-                                {[accentColor,...colorCircles].map((color, i) =>
-                                    <IconButton key={i} data-color={color} onClick={(e) => setAccentColor(e.currentTarget.dataset.color!)}>
+                                {[color,...colorCircles].map((color, i) =>
+                                    <IconButton key={i} data-color={color} onClick={(e) => setColor(e.currentTarget.dataset.color!)}>
                                         <ColorCircle color={color} />
                                     </IconButton>)}
                             </div>
                             {showSlider? <div style={{marginBottom: "2.5em"}}>
-                                <SliderPicker color={accentColor} onChangeComplete={(color) => {
+                                <SliderPicker color={color} onChangeComplete={(newColor) => {
                                     let temp = [...colorCircles];
                                     temp.pop();
-                                    temp.splice(0,0,accentColor);
+                                    temp.splice(0,0,color);
                                     setColorCircles(temp);
-                                    setAccentColor(color.hex);
+                                    setColor(newColor.hex);
                                 }}/>
                             </div>: <div />}
                             <div style={{
@@ -171,15 +188,15 @@ function Account() {
                             }}>
                                 <Typography className="systemText" style={{whiteSpace: 'nowrap'}}>Stay Logged In :</Typography>
                                 <Card style={{width: "100px", textAlign: "center"}}>
-                                    <CardActionArea onClick={() => setStayLoggedIn(true)}>
-                                        <CardContent style={(stayLoggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
+                                    <CardActionArea onClick={() => setLoggedIn(true)}>
+                                        <CardContent style={(loggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> Yes </Typography>
                                         </CardContent>
                                     </CardActionArea>
                                 </Card>
                                 <Card style={{width: "100px", textAlign: "center"}}>
-                                    <CardActionArea onClick={() => setStayLoggedIn(false)}>
-                                        <CardContent style={(!stayLoggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
+                                    <CardActionArea onClick={() => setLoggedIn(false)}>
+                                        <CardContent style={(!loggedIn)? {backgroundColor: "var(--systemText)"}: {}}>
                                             <Typography> No </Typography>
                                         </CardContent>
                                     </CardActionArea>
@@ -188,12 +205,10 @@ function Account() {
                         </CardContent>
                     </Card>
                     <div style={{display: "flex", justifyContent: "flex-end", margin: "1em 4em 3em 0"}}>
-                        <Button variant="contained" size="large">Save</Button>
+                        <Button variant="contained" size="large" className='file-save' id='save-preferences' onClick={cacheState}>Save</Button>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
-
-export default Account;

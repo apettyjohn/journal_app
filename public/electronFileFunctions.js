@@ -21,6 +21,8 @@ const saveObserver = new MutationObserver(function () {
                 save[i].addEventListener('click', savePost);
             } else if (save[i].id === "delete-post") {
                 save[i].addEventListener('click', deletePost);
+            } else if (save[i].id === "save-preferences") {
+                save[i].addEventListener('click', savePreferences);
             } else {
                 save[i].addEventListener('click', saveFileDialog);
             }
@@ -345,7 +347,6 @@ async function savePost() {
     const text = await response.text();
     const data = JSON.parse(text);
 
-
     // Change file list
     const dirName = `${data.user.name}-${data.user.id}`;
     const fileList = jetpack.cwd(`files/${dirName}`).find('.');
@@ -466,4 +467,34 @@ async function deletePost() {
     for (let i = 0; i < postList.length; i++) {
         postList[i].click();
     }
+}
+
+async function savePreferences() {
+    // Get editor blob from cache
+    const cacheName = "journal-app-files";
+    const cache = await caches.open(cacheName);
+    const url = "http://localhost:3000/preferenceState";
+    const response = await cache.match(url);
+    if (response === undefined) {
+        setTimeout(() => savePreferences(),100);
+        return;
+    }
+    const text = await response.text();
+    const data = JSON.parse(text);
+
+    // Modify preference list
+    const preferences = await readFile(["preferences.json"]);
+    let tempPreferences = {...preferences};
+    const id = data.preferences.id;
+    preferences.users.forEach((user,i) => {
+        if (user.id === id) tempPreferences.users.splice(i,1,data.preferences);
+    });
+
+    // Save preference and clear state from cache
+    await writeFile(["preferences.json"],tempPreferences);
+    await checkCachedFile("preferences.json",null,tempPreferences, true);
+    await cache.delete(url);
+    const app = document.getElementById("app");
+    app.dataset.loaded = "";
+    app.click();
 }

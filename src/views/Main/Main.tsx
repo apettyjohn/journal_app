@@ -24,10 +24,7 @@ function Main() {
     }),[store.files.userFiles]);
     const today = store.date.today;
     const selectedDate = store.date.selected;
-    let preferences: Preference = {id: user!.id, theme: "light", accentColor: "#fff", stayLoggedIn: false};
-    store.preferences.users.forEach((item) => {
-        if (item.id === user!.id) preferences = item;
-    });
+    const root = document.querySelector(':root')! as HTMLElement;
 
     const svgStyle: React.CSSProperties = {transform: 'scale(1.6)'};
     const topCardStyle: React.CSSProperties = {
@@ -47,6 +44,7 @@ function Main() {
         paddingRight: "1em"
     };
 
+    const [preferences, setPreferences] = React.useState<Preference>({id: 0, theme: "light", accentColor: "#06b200", stayLoggedIn: false});
     const [scroll, setScroll] = React.useState<any>(null);
     const [timer, setTimer] = React.useState<any | null>(null);
     const [newPost, setNewPost] = React.useState<HTMLElement | null>(null);
@@ -109,11 +107,11 @@ function Main() {
         } else if (files.length > 0 && scroll !== selectedDate) {
             let closestDay = files[0];
             let difference = 50000;
-            const day1 = new Date(selectedDate.year,selectedDate.month-1,selectedDate.day);
+            const day1 = new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day);
             files.forEach((file: string) => {
                 const dateStr = file.split('_')[1].split('-');
-                let day2 = new Date(Number(dateStr[2]),Number(dateStr[0])-1,Number(dateStr[1]));
-                let diff = Math.abs(day1.getTime() - day2.getTime())/86400000;
+                let day2 = new Date(Number(dateStr[2]), Number(dateStr[0]) - 1, Number(dateStr[1]));
+                let diff = Math.abs(day1.getTime() - day2.getTime()) / 86400000;
                 if (diff < difference) {
                     difference = diff;
                     closestDay = file;
@@ -121,7 +119,7 @@ function Main() {
             });
             const filepath = closestDay.split('_')[1];
             const posts = document.querySelectorAll("a.post-link") as NodeListOf<HTMLAnchorElement>;
-            for (let i=0;i<posts.length;i++) {
+            for (let i = 0; i < posts.length; i++) {
                 let date = posts[i].href.split('#')[1].split('_')[1];
                 if (filepath === date) {
                     setScroll(selectedDate);
@@ -129,10 +127,16 @@ function Main() {
                     return;
                 }
             }
+        } else if (preferences.id === 0) {
+            store.preferences.users.forEach((item) => {
+                if (item.id === user.id) setPreferences(item);
+            });
         } else if (store.theme.value !== preferences.theme) {
             dispatch(toggleTheme(preferences.theme));
+        } else if (getComputedStyle(root).getPropertyValue('--accentColor') !== preferences.accentColor){
+            root.style.setProperty('--accentColor', preferences.accentColor);
         }
-    }, [user, files, scroll, selectedDate, navigate, store.theme.value, preferences.theme, dispatch]);
+    }, [user, files, scroll, selectedDate, navigate, store.theme.value, preferences.theme, dispatch, preferences.accentColor, root, preferences.id, store.preferences.users]);
 
     return (
         <div className="view">
